@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"ShellControl_Server/src/http"
+)
 
 func main() {
-	fmt.Println("ShellControl Server is running!")
+	http.SetupServer()
 }
