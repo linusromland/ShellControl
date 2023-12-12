@@ -1,0 +1,21 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"compilerOptions": {
+		"module": "commonjs",
+		"declaration": true,
+		"removeComments": true,
+		"emitDecoratorMetadata": true,
+		"target": "es2021",
+		"sourceMap": true,
+		"outDir": "dist",
+		"baseUrl": "src",
+		"incremental": true,
+		"strictNullChecks": false,
+		"noImplicitAny": false,
+		"strictBindCallApply": false,
+		"forceConsistentCasingInFileNames": false,
+		"noFallthroughCasesInSwitch": false,
+		"experimentalDecorators": true
+	},
+	"include": ["src", "./.eslintrc.cjs"]
+}

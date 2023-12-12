@@ -1,0 +1,9 @@
+# Node Dependencies
+node_modules
+.yarn/
+
+# Build dir
+dist
+
+# Misc
+.DS_Store
