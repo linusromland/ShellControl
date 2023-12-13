@@ -5,13 +5,15 @@ import { ConfigModule } from '@nestjs/config';
 // Internal dependencies
 import { RequestLogger } from './middlewares/requestLogger.middleware';
 import { HealthModule } from './routes/health/health.module';
+import { ShellModule } from 'routes/shell/shell.module';
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
 			isGlobal: true
 		}),
-		HealthModule
+		HealthModule,
+		ShellModule
 	],
 	providers: [
 		{
