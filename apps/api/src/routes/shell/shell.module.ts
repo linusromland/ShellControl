@@ -1,6 +1,9 @@
+// External dependencies
 import { Module } from '@nestjs/common';
-import { ShellService } from './shell.service';
+
+// Internal dependencies
 import { ShellController } from './shell.controller';
+import { ShellService } from './shell.service';
 
 @Module({
 	providers: [ShellService],

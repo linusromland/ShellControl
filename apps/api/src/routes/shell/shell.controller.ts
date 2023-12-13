@@ -5,13 +5,26 @@ import { ShellService } from './shell.service';
 export class ShellController {
 	constructor(private readonly shellService: ShellService) {}
 
-	@Get('/execute')
-	async executeCommand(@Query('cmd') cmd: string): Promise<string> {
-		try {
-			const output = await this.shellService.runCommand(cmd);
-			return output;
-		} catch (error) {
-			return `Error executing command: ${error}`;
-		}
+	@Get()
+	findAll(): Promise<any[]> {
+		return this.shellService.findAll();
+	}
+
+	@Get('find')
+	findOne(@Query('id') id: number): Promise<any> {
+		return this.shellService.findOne(id);
+	}
+
+	@Get('create')
+	async create(
+		@Query('name') name: string,
+		@Query('directory') directory: string,
+		@Query('command') command: string
+	): Promise<any> {
+		return this.shellService.create({
+			name: name,
+			directory: directory,
+			command: command
+		});
 	}
 }

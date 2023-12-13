@@ -1,6 +1,7 @@
 // External dependencies
 import { MiddlewareConsumer, Module, NestModule, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Internal dependencies
 import { RequestLogger } from './middlewares/requestLogger.middleware';
@@ -11,6 +12,12 @@ import { ShellModule } from 'routes/shell/shell.module';
 	imports: [
 		ConfigModule.forRoot({
 			isGlobal: true
+		}),
+		TypeOrmModule.forRoot({
+			type: 'sqlite',
+			database: 'db.sqlite',
+			entities: [__dirname + '/entities/*.entity{.ts,.js}'],
+			synchronize: true
 		}),
 		HealthModule,
 		ShellModule
