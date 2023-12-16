@@ -4,12 +4,17 @@ import {
 	HealthCheckService,
 	HealthCheck,
 	MemoryHealthIndicator,
-	HealthCheckResult
+	HealthCheckResult,
+	TypeOrmHealthIndicator // Import TypeOrmHealthIndicator
 } from '@nestjs/terminus';
 
 @Injectable()
 export default class HealthService {
-	constructor(private health: HealthCheckService, private memory: MemoryHealthIndicator) {}
+	constructor(
+		private health: HealthCheckService,
+		private memory: MemoryHealthIndicator,
+		private db: TypeOrmHealthIndicator
+	) {}
 
 	@HealthCheck()
 	check(): Promise<HealthCheckResult> {
@@ -17,7 +22,8 @@ export default class HealthService {
 
 		return this.health.check([
 			() => this.memory.checkHeap('memory_heap', memLimit),
-			() => this.memory.checkRSS('memory_rss', memLimit)
+			() => this.memory.checkRSS('memory_rss', memLimit),
+			() => this.db.pingCheck('sqlite', { timeout: 1500 })
 		]);
 	}
 }

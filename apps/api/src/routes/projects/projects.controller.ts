@@ -1,18 +1,18 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { ShellService } from './shell.service';
+import { ProjectsService } from './projects.service';
 
-@Controller('shell')
-export class ShellController {
-	constructor(private readonly shellService: ShellService) {}
+@Controller('projects')
+export class ProjectsController {
+	constructor(private readonly projectsService: ProjectsService) {}
 
 	@Get()
 	findAll(): Promise<any[]> {
-		return this.shellService.findAll();
+		return this.projectsService.findAll();
 	}
 
 	@Get('find')
 	findOne(@Query('id') id: number): Promise<any> {
-		return this.shellService.findOne(id);
+		return this.projectsService.findOne(id);
 	}
 
 	@Get('create')
@@ -21,7 +21,7 @@ export class ShellController {
 		@Query('directory') directory: string,
 		@Query('command') command: string
 	): Promise<any> {
-		return this.shellService.create({
+		return this.projectsService.create({
 			name: name,
 			directory: directory,
 			command: command

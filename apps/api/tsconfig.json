@@ -17,5 +17,6 @@
 		"noFallthroughCasesInSwitch": false,
 		"experimentalDecorators": true
 	},
-	"include": ["src", "./.eslintrc.cjs"]
+	"include": ["src", "./.eslintrc.cjs"],
+	"exclude": ["node_modules", "dist"]
 }

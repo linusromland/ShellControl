@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 // Internal dependencies
 import { RequestLogger } from './middlewares/requestLogger.middleware';
 import { HealthModule } from './routes/health/health.module';
-import { ShellModule } from 'routes/shell/shell.module';
+import { ShellModule } from 'routes/projects/shell.module';
 
 @Module({
 	imports: [
