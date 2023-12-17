@@ -11,7 +11,9 @@ module.exports = {
 		sourceType: 'module',
 		project: './tsconfig.json'
 	},
-	extends: ['airbnb-base', 'airbnb-typescript/base', '@packages/custom'],
+	extends: ['airbnb-base', 'airbnb-typescript/base'],
 	rules: {
+		'import/prefer-default-export': 'off',
+		'class-methods-use-this': 'off'
 	}
 };

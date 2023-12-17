@@ -7,10 +7,10 @@ import HealthService from './health.service';
 
 @Controller('health')
 export default class HealthController {
-	constructor(private healthService: HealthService) {}
+  constructor(private healthService: HealthService) {}
 
-	@Get()
-	public async check(): Promise<HealthCheckResult> {
-		return this.healthService.check();
-	}
+  @Get()
+  public async check(): Promise<HealthCheckResult> {
+    return this.healthService.check();
+  }
 }

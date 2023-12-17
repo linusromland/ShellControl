@@ -8,9 +8,9 @@ import HealthService from './health.service';
 import HealthController from './health.controller';
 
 @Module({
-	imports: [ConfigModule.forRoot(), TerminusModule],
-	controllers: [HealthController],
-	providers: [HealthService],
-	exports: []
+  imports: [ConfigModule.forRoot(), TerminusModule],
+  controllers: [HealthController],
+  providers: [HealthService],
+  exports: [],
 })
 export class HealthModule {}

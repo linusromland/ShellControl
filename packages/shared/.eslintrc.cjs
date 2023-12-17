@@ -8,7 +8,7 @@ module.exports = {
 	env: {
 		node: true
 	},
-	extends: ['airbnb-base', 'airbnb-typescript/base', '@packages/custom'],
+	extends: ['airbnb-base', 'airbnb-typescript/base'],
 	rules: {
 		'import/no-extraneous-dependencies': 'off',
 		'import/prefer-default-export': 'off',
