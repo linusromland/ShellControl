@@ -1,27 +1,22 @@
 {
-  "private": true,
-  "packageManager": "yarn@3.5.1",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev --parallel",
-    "lint": "turbo run lint",
-    "format": "prettier --write .",
-    "checkFormat": "turbo run checkFormat"
-  },
-  "devDependencies": {
-    "@types/lodash": "4.14.202",
-    "@types/luxon": "3.3.7",
-    "prettier": "3.1.1",
-    "turbo": "^1.9.9"
-  },
-  "dependencies": {
-    "luxon": "3.4.4"
-  },
-  "installConfig": {
-    "pnp": false
-  }
+	"name": "shellcontrol",
+	"version": "0.0.1",
+	"scripts": {
+		"install-all": "npm install  && cd ./apps/api && npm install && cd ../../",
+		"dev-api": "cd apps/api && npm run dev",
+		"dev": "concurrently \"npm run dev-api\""
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/linusromland/ShellControl.git"
+	},
+	"author": "Linus Romland (linusromland)",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/linusromland/ShellControl/issues"
+	},
+	"homepage": "https://github.com/linusromland/ShellControl#readme",
+	"devDependencies": {
+		"concurrently": "^8.2.2"
+	}
 }

@@ -1,6 +1,0 @@
-{
-  "name": "@packages/prettier-config-custom",
-  "version": "0.0.0",
-  "main": "index.js",
-  "private": true
-}
