@@ -2,9 +2,11 @@
 	"name": "shellcontrol",
 	"version": "0.0.1",
 	"scripts": {
-		"install-all": "npm install  && cd ./apps/api && npm install && cd ../../",
+		"install-all": "npm install  && cd ./apps/api && npm install && cd ../../packages/shared && npm install && cd ../../",
 		"dev-api": "cd apps/api && npm run dev",
-		"dev": "concurrently \"npm run dev-api\""
+		"predev": "npm run install-all",
+		"dev": "concurrently \"npm run dev-api\"",
+		"format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\""
 	},
 	"repository": {
 		"type": "git",
@@ -17,6 +19,7 @@
 	},
 	"homepage": "https://github.com/linusromland/ShellControl#readme",
 	"devDependencies": {
-		"concurrently": "^8.2.2"
+		"concurrently": "^8.2.2",
+		"prettier": "^3.1.1"
 	}
 }

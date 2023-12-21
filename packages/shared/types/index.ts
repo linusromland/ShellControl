@@ -1,3 +1,3 @@
-import HelloWorld from './HelloWorld';
+import RequestBase from './RequestBase';
 
-export { HelloWorld };
+export { RequestBase };

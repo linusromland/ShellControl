@@ -1,0 +1,7 @@
+{
+	"name": "shellcontrol-shared",
+	"version": "0.0.0",
+	"dependencies": {
+		"sequelize-typescript": "^2.1.6"
+	}
+}
