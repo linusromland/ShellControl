@@ -7,6 +7,7 @@ import { Project } from '@local/shared/entities';
 @Module({
 	imports: [SequelizeModule.forFeature([Project])],
 	controllers: [ProjectController],
-	providers: [ProjectService]
+	providers: [ProjectService],
+	exports: [ProjectService]
 })
 export class ProjectModule {}

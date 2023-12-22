@@ -5,6 +5,7 @@ import { RequestLogger } from './middlewares/requestLogger.middleware';
 import { HealthModule } from './health/health.module';
 import { databaseConfig } from './database/database.config';
 import { ProjectModule } from './project/project.module';
+import { CommandRunnerModule } from './commandRunner/commandRunner.module';
 
 @Module({
 	imports: [
@@ -13,7 +14,8 @@ import { ProjectModule } from './project/project.module';
 		}),
 		SequelizeModule.forRoot(databaseConfig),
 		HealthModule,
-		ProjectModule
+		ProjectModule,
+		CommandRunnerModule
 	],
 	providers: [
 		{

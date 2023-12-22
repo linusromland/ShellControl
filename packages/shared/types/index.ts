@@ -1,3 +1,3 @@
-import RequestBase from './RequestBase';
+import Response from './Response.type';
 
-export { RequestBase };
+export { Response };

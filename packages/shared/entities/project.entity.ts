@@ -12,7 +12,7 @@ export class Project extends Model<Project> {
 
 	@Column({
 		type: DataType.STRING,
-		allowNull: false
+		allowNull: true
 	})
 	description: string;
 
