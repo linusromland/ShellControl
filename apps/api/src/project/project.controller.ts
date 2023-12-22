@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+	Controller,
+	Get,
+	Post,
+	Body,
+	Patch,
+	Param,
+	Delete,
+	NotFoundException,
+	InternalServerErrorException
+} from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { CreateProjectDto, UpdateProjectDto } from '@local/shared/dtos';
 
@@ -7,27 +17,89 @@ export class ProjectController {
 	constructor(private readonly projectService: ProjectService) {}
 
 	@Post()
-	create(@Body() project: CreateProjectDto) {
-		return this.projectService.create(project);
+	async create(@Body() project: CreateProjectDto) {
+		const createdProject = this.projectService.create(project);
+
+		if (!createdProject) {
+			return {
+				success: false,
+				message: 'Project failed to create',
+				data: null
+			};
+		}
+
+		return {
+			success: true,
+			message: 'Project created successfully',
+			data: createdProject
+		};
 	}
 
 	@Get()
-	findAll() {
-		return this.projectService.findAll();
+	async findAll() {
+		const projects = await this.projectService.findAll();
+
+		return {
+			success: true,
+			message: 'Projects retrieved successfully',
+			data: projects
+		};
 	}
 
 	@Get(':id')
-	findOne(@Param('id') id: string) {
-		return this.projectService.findOne(+id);
+	async findOne(@Param('id') id: string) {
+		const project = await this.projectService.findOne(+id);
+
+		if (!project) {
+			throw new NotFoundException({
+				success: false,
+				message: 'Project not found',
+				data: null
+			});
+		}
+
+		return {
+			success: true,
+			message: 'Project retrieved successfully',
+			data: project
+		};
 	}
 
 	@Patch(':id')
-	update(@Param('id') id: string, @Body() project: UpdateProjectDto) {
-		return this.projectService.update(+id, project);
+	async update(@Param('id') id: string, @Body() project: UpdateProjectDto) {
+		const updated = await this.projectService.update(+id, project);
+
+		if (!updated) {
+			throw new InternalServerErrorException({
+				success: false,
+				message: 'Project failed to update',
+				data: null
+			});
+		}
+
+		return {
+			success: true,
+			message: 'Project updated successfully',
+			data: updated
+		};
 	}
 
 	@Delete(':id')
-	remove(@Param('id') id: string) {
-		return this.projectService.remove(+id);
+	async remove(@Param('id') id: string) {
+		const deleted = await this.projectService.remove(+id);
+
+		if (!deleted) {
+			throw new InternalServerErrorException({
+				success: false,
+				message: 'Project failed to delete',
+				data: null
+			});
+		}
+
+		return {
+			success: true,
+			message: 'Project deleted successfully',
+			data: null
+		};
 	}
 }
