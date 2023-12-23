@@ -1,105 +1,84 @@
-import {
-	Controller,
-	Get,
-	Post,
-	Body,
-	Patch,
-	Param,
-	Delete,
-	NotFoundException,
-	InternalServerErrorException
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { CreateProjectDto, UpdateProjectDto } from '@local/shared/dtos';
+import { Project } from '@local/shared/entities';
+import { InternalServerErrorException, NotFoundException, getValidResponse } from 'src/utils/getResponse';
+import { Response } from '@local/shared/types';
 
 @Controller('project')
 export class ProjectController {
 	constructor(private readonly projectService: ProjectService) {}
 
 	@Post()
-	async create(@Body() project: CreateProjectDto) {
-		const createdProject = this.projectService.create(project);
-
-		if (!createdProject) {
-			return {
-				success: false,
-				message: 'Project failed to create',
-				data: null
-			};
+	@HttpCode(HttpStatus.CREATED)
+	async create(@Body() project: CreateProjectDto): Promise<Response<Project>> {
+		try {
+			const createdProject = await this.projectService.create(project);
+			return getValidResponse<Project>('Project created successfully', createdProject);
+		} catch (error) {
+			throw new InternalServerErrorException('Project failed to create');
 		}
-
-		return {
-			success: true,
-			message: 'Project created successfully',
-			data: createdProject
-		};
 	}
 
 	@Get()
-	async findAll() {
-		const projects = await this.projectService.findAll();
-
-		return {
-			success: true,
-			message: 'Projects retrieved successfully',
-			data: projects
-		};
+	@HttpCode(HttpStatus.OK)
+	async findAll(): Promise<Response<Project[]>> {
+		try {
+			const projects = await this.projectService.findAll();
+			return getValidResponse<Project[]>('Projects retrieved successfully', projects);
+		} catch (error) {
+			throw new InternalServerErrorException('Failed to retrieve projects');
+		}
 	}
 
 	@Get(':id')
-	async findOne(@Param('id') id: string) {
-		const project = await this.projectService.findOne(+id);
+	@HttpCode(HttpStatus.OK)
+	async findOne(@Param('id') id: string): Promise<Response<Project>> {
+		try {
+			const project = await this.projectService.findOne(+id);
 
-		if (!project) {
-			throw new NotFoundException({
-				success: false,
-				message: 'Project not found',
-				data: null
-			});
+			if (!project) {
+				throw new NotFoundException('Project not found');
+			}
+
+			return getValidResponse<Project>('Project retrieved successfully', project);
+		} catch (error) {
+			throw new InternalServerErrorException('Failed to retrieve project');
 		}
-
-		return {
-			success: true,
-			message: 'Project retrieved successfully',
-			data: project
-		};
 	}
 
 	@Patch(':id')
-	async update(@Param('id') id: string, @Body() project: UpdateProjectDto) {
-		const updated = await this.projectService.update(+id, project);
+	@HttpCode(HttpStatus.OK)
+	async update(
+		@Param('id') id: string,
+		@Body() project: UpdateProjectDto
+	): Promise<Response<[affectedCount: number]>> {
+		try {
+			const updated = await this.projectService.update(+id, project);
 
-		if (!updated) {
-			throw new InternalServerErrorException({
-				success: false,
-				message: 'Project failed to update',
-				data: null
-			});
+			if (!updated) {
+				throw new InternalServerErrorException('Project failed to update');
+			}
+
+			return getValidResponse<[affectedCount: number]>('Project updated successfully', updated);
+		} catch (error) {
+			throw new InternalServerErrorException('Failed to update project');
 		}
-
-		return {
-			success: true,
-			message: 'Project updated successfully',
-			data: updated
-		};
 	}
 
 	@Delete(':id')
-	async remove(@Param('id') id: string) {
-		const deleted = await this.projectService.remove(+id);
+	@HttpCode(HttpStatus.OK)
+	async remove(@Param('id') id: string): Promise<Response<void>> {
+		try {
+			const deleted = await this.projectService.remove(+id);
 
-		if (!deleted) {
-			throw new InternalServerErrorException({
-				success: false,
-				message: 'Project failed to delete',
-				data: null
-			});
+			if (!deleted) {
+				throw new InternalServerErrorException('Project failed to delete');
+			}
+
+			return getValidResponse('Project deleted successfully');
+		} catch (error) {
+			throw new InternalServerErrorException('Failed to delete project');
 		}
-
-		return {
-			success: true,
-			message: 'Project deleted successfully',
-			data: null
-		};
 	}
 }

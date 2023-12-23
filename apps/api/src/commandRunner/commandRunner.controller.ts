@@ -1,53 +1,54 @@
-import { Controller, Param, Get, Post, Delete } from '@nestjs/common';
+import { Controller, Param, Get, Post, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { CommandRunnerService } from './commandRunner.service';
 import { Response } from '@local/shared/types';
 import { CommandStatus } from '@local/shared/enums';
+import { InternalServerErrorException, getValidResponse } from 'src/utils/getResponse';
 
 @Controller('commandRunner')
 export class CommandRunnerController {
 	constructor(private readonly commandRunnerService: CommandRunnerService) {}
 
 	@Post('run/:projectId')
-	async runCommand(@Param('projectId') projectId: number): Promise<Response> {
-		const success = await this.commandRunnerService.runCommand(projectId);
-
-		return {
-			success,
-			message: success ? 'Command started successfully' : 'Command failed to start',
-			data: null
-		};
+	@HttpCode(HttpStatus.OK)
+	async runCommand(@Param('projectId') projectId: number): Promise<Response<void>> {
+		try {
+			await this.commandRunnerService.runCommand(projectId);
+			return getValidResponse('Command started successfully');
+		} catch (error) {
+			throw new InternalServerErrorException('Failed to start command');
+		}
 	}
 
 	@Delete('stop/:projectId')
-	stopCommand(@Param('projectId') projectId: number): Response {
-		const success = this.commandRunnerService.stopCommand(projectId);
-
-		return {
-			success,
-			message: success ? 'Command stopped successfully' : 'Command failed to stop',
-			data: null
-		};
+	@HttpCode(HttpStatus.OK)
+	stopCommand(@Param('projectId') projectId: number): Response<void> {
+		try {
+			this.commandRunnerService.stopCommand(projectId);
+			return getValidResponse('Command stopped successfully');
+		} catch (error) {
+			throw new InternalServerErrorException('Failed to stop command');
+		}
 	}
 
 	@Get('status/:projectId')
+	@HttpCode(HttpStatus.OK)
 	getCommandStatus(@Param('projectId') projectId: number): Response<CommandStatus> {
-		const commandStatus = this.commandRunnerService.getCommandStatus(projectId);
-
-		return {
-			success: true,
-			message: 'Command status retrieved successfully',
-			data: commandStatus
-		};
+		try {
+			const commandStatus = this.commandRunnerService.getCommandStatus(projectId);
+			return getValidResponse<CommandStatus>('Command status retrieved successfully', commandStatus);
+		} catch (error) {
+			throw new InternalServerErrorException('Failed to retrieve command status');
+		}
 	}
 
 	@Get('logs/:projectId')
+	@HttpCode(HttpStatus.OK)
 	getCommandLogs(@Param('projectId') projectId: number): Response<string[]> {
-		const logs = this.commandRunnerService.getCommandLogs(projectId);
-
-		return {
-			success: true,
-			message: 'Command logs retrieved successfully',
-			data: logs
-		};
+		try {
+			const logs = this.commandRunnerService.getCommandLogs(projectId);
+			return getValidResponse<string[]>('Command logs retrieved successfully', logs);
+		} catch (error) {
+			throw new InternalServerErrorException('Failed to retrieve command logs');
+		}
 	}
 }

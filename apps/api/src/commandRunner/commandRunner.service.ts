@@ -1,7 +1,13 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { CommandStatus } from '@local/shared/enums';
-import { ProjectService } from 'src/project/project.service';
+import { ProjectService } from '../project/project.service';
+import {
+	BadRequestException,
+	InternalServerErrorException,
+	NotFoundException,
+	isHttpException
+} from '../utils/getResponse';
 
 @Injectable()
 export class CommandRunnerService {
@@ -11,7 +17,7 @@ export class CommandRunnerService {
 	private runningCommands: Map<number, ChildProcessWithoutNullStreams> = new Map();
 	private logs: Map<number, string[]> = new Map();
 
-	async runCommand(projectId: number): Promise<boolean> {
+	async runCommand(projectId: number) {
 		try {
 			const project = await this.projectService.findOne(projectId);
 
@@ -25,7 +31,7 @@ export class CommandRunnerService {
 
 			if (this.runningCommands.has(projectId)) {
 				this.logger.error('Command is already running for this project.');
-				throw new Error('Command is already running for this project.');
+				throw new BadRequestException('Command is already running for this project.');
 			}
 
 			const subprocess = spawn(command, [], { cwd, shell: true, stdio: 'pipe' });
@@ -64,15 +70,16 @@ export class CommandRunnerService {
 			subprocess.on('spawn', () => {
 				this.logger.log(`Command "${command}" spawned.`);
 			});
-
-			return true;
 		} catch (error) {
-			this.logger.error(`Failed to run command: ${error.message}`);
-			return false;
+			if (isHttpException(error)) {
+				throw error;
+			}
+
+			throw new InternalServerErrorException(`Failed to run command: ${error.message}`);
 		}
 	}
 
-	stopCommand(projectId: number): boolean {
+	stopCommand(projectId: number) {
 		try {
 			const childProcess = this.runningCommands.get(projectId);
 
@@ -86,8 +93,11 @@ export class CommandRunnerService {
 
 			return true;
 		} catch (error) {
-			this.logger.error(`Failed to stop command: ${error.message}`);
-			return false;
+			if (isHttpException(error)) {
+				throw error;
+			}
+
+			throw new InternalServerErrorException(`Failed to stop command: ${error.message}`);
 		}
 	}
 
