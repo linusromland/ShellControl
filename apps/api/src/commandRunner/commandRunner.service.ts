@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { CommandStatus } from '@local/shared/enums';
 import { ProjectService } from '../project/project.service';
+import { CommandRunnerGateway } from './commandRunner.gateway';
 import {
 	BadRequestException,
 	InternalServerErrorException,
@@ -11,7 +12,10 @@ import {
 
 @Injectable()
 export class CommandRunnerService {
-	constructor(private readonly projectService: ProjectService) {}
+	constructor(
+		private readonly projectService: ProjectService,
+		private readonly commandRunnerGateway: CommandRunnerGateway
+	) {}
 
 	private logger = new Logger('CommandRunnerService');
 	private runningCommands: Map<number, ChildProcessWithoutNullStreams> = new Map();
@@ -41,6 +45,7 @@ export class CommandRunnerService {
 				const log = data.toString();
 				const logs = this.logs.get(projectId) || [];
 				logs.push(log);
+				this.commandRunnerGateway.broadcastToRoom(`${projectId}`, 'log', log);
 				this.logs.set(projectId, logs);
 			};
 
