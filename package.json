@@ -2,10 +2,11 @@
 	"name": "shellcontrol",
 	"version": "0.0.1",
 	"scripts": {
-		"install-all": "npm install  && cd ./apps/api && npm install && cd ../../packages/shared && npm install && cd ../../",
+		"install-all": "npm install  && cd ./apps/api && npm install && cd ../client && npm install && cd ../../packages/shared && npm install && cd ../../",
 		"dev-api": "cd apps/api && npm run dev",
+		"dev-client": "cd apps/client && npm run dev",
 		"predev": "npm run install-all",
-		"dev": "concurrently \"npm run dev-api\"",
+		"dev": "concurrently \"npm run dev-api\" \"npm run dev-client\"",
 		"format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\""
 	},
 	"repository": {
