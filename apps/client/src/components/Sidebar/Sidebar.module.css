@@ -1,0 +1,59 @@
+.sidebar {
+	overflow: hidden;
+	height: 100%;
+	background: #fff;
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	min-width: 50px;
+}
+
+.collapsed {
+	width: 50px !important;
+}
+
+.toggle {
+	font-size: 1.5rem;
+	margin: 10px;
+	position: absolute;
+	top: 10px;
+	left: 0;
+}
+
+.content {
+	flex: 1;
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+}
+
+h1 {
+	font-size: 1.5rem;
+	margin-bottom: 20px;
+}
+
+ul {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.projectItem {
+	display: flex;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.projectItem span {
+	margin-left: 10px;
+}
+
+.resizeHandle {
+	position: absolute;
+	width: 10px;
+	height: 100%;
+	right: 0;
+	top: 0;
+	background: #ccc;
+	cursor: col-resize;
+}
