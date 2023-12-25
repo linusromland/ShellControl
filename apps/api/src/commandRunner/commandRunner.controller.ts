@@ -2,7 +2,7 @@ import { Controller, Param, Get, Post, Delete, HttpCode, HttpStatus } from '@nes
 import { CommandRunnerService } from './commandRunner.service';
 import { Response } from '@local/shared/types';
 import { CommandStatus } from '@local/shared/enums';
-import { InternalServerErrorException, getValidResponse } from 'src/utils/getResponse';
+import { InternalServerErrorException, getValidResponse } from '../utils/getResponse';
 
 @Controller('commandRunner')
 export class CommandRunnerController {

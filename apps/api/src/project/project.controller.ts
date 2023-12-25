@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { ProjectService } from './project.service';
+import { InternalServerErrorException, NotFoundException, getValidResponse } from '../utils/getResponse';
 import { CreateProjectDto, UpdateProjectDto } from '@local/shared/dtos';
 import { Project } from '@local/shared/entities';
-import { InternalServerErrorException, NotFoundException, getValidResponse } from 'src/utils/getResponse';
 import { Response } from '@local/shared/types';
 
 @Controller('project')

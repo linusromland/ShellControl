@@ -8,7 +8,7 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 async function bootstrap() {
 	const CORS_OPTIONS = {
-		origin: [process.env.CLIENT_HOST || 'none'],
+		origin: '*',
 		allowedHeaders: [
 			'Access-Control-Allow-Origin',
 			'Origin',
