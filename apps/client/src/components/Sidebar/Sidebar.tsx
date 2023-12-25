@@ -1,8 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { Spinner, Avatar, Button } from '@nextui-org/react';
+import { Spinner, Listbox, ListboxItem, ListboxSection, Button } from '@nextui-org/react';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { Project } from '@local/shared/entities';
 import style from './Sidebar.module.css';
 import useApi from '../../hooks/useApi';
+
+dayjs.extend(relativeTime);
 
 export default function Sidebar(): JSX.Element {
 	const [collapsed, setCollapsed] = useState(false);
@@ -15,8 +19,8 @@ export default function Sidebar(): JSX.Element {
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {
 			if (resizing) {
-				const max = 200;
-				const min = 500;
+				const max = 250;
+				const min = 600;
 				setWidth(Math.max(Math.min(e.clientX, min), max));
 			}
 		};
@@ -40,41 +44,36 @@ export default function Sidebar(): JSX.Element {
 		setResizing(true);
 	};
 
-	const handleToggleCollapse = () => {
-		setCollapsed(!collapsed);
-	};
-
 	return (
 		<div
 			ref={sidebarRef}
 			className={`${style.sidebar} ${collapsed ? style.collapsed : ''}`}
 			style={{ width }}
 		>
-			<Button
-				flat
-				auto
-				circle
-				className={style.toggle}
-				onClick={handleToggleCollapse}
-			>
-				{collapsed ? '>' : '<'}
-			</Button>
 			<div className={style.content}>
-				<h1>ShellControl</h1>
+				<h1 className={style.title}>ShellControl</h1>
 				{loading && <Spinner />}
 				{error && <p>{error as unknown as string}</p>}
 				{!loading && data && (
-					<ul>
-						{data.data.map((project) => (
-							<li
-								key={project.id}
-								className={style.projectItem}
-							>
-								<Avatar src={project.icon} />
-								<span>{project.name}</span>
-							</li>
-						))}
-					</ul>
+					<Listbox>
+						<ListboxSection
+							title='Projects'
+							showDivider
+						>
+							{data.data.map((project) => (
+								<ListboxItem
+									key={project.id}
+									className={style.listboxItem}
+								>
+									<span>{project.name}</span>
+									<span>{dayjs(project.createdAt).fromNow()}</span>
+								</ListboxItem>
+							))}
+						</ListboxSection>
+						<ListboxItem key='create-project'>
+							<span>New Project</span>
+						</ListboxItem>
+					</Listbox>
 				)}
 			</div>
 			<div
