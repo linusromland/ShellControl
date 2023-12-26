@@ -1,5 +1,6 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
+import fs from 'node:fs';
 
 process.env.DIST = path.join(__dirname, '../dist');
 process.env.VITE_PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, '../public');
@@ -20,6 +21,30 @@ function createWindow() {
 
 	win.webContents.on('did-finish-load', () => {
 		win?.webContents.send('main-process-message', new Date().toLocaleString());
+	});
+
+	ipcMain.on('fsExistsSync', (event, path: fs.PathLike) => {
+		event.returnValue = fs.existsSync(path);
+	});
+
+	ipcMain.on(
+		'fsWriteFileSync',
+		(
+			event,
+			file: fs.PathOrFileDescriptor,
+			data: string | NodeJS.ArrayBufferView,
+			options?: fs.WriteFileOptions | undefined
+		) => {
+			event.returnValue = fs.writeFileSync(file, data, options);
+		}
+	);
+
+	ipcMain.on('fsReadFileSync', (event, path: fs.PathOrFileDescriptor) => {
+		event.returnValue = fs.readFileSync(path, 'utf8');
+	});
+
+	ipcMain.on('get-app-path', (event) => {
+		event.returnValue = app.getAppPath();
 	});
 
 	if (VITE_DEV_SERVER_URL) {
