@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Spinner, Listbox, ListboxItem, ListboxSection, Button } from '@nextui-org/react';
+import { Spinner, Listbox, ListboxItem, ListboxSection } from '@nextui-org/react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Project } from '@local/shared/entities';
@@ -9,7 +9,7 @@ import useApi from '../../hooks/useApi';
 dayjs.extend(relativeTime);
 
 export default function Sidebar(): JSX.Element {
-	const [collapsed, setCollapsed] = useState(false);
+	const [collapsed] = useState(false);
 	const [width, setWidth] = useState(250);
 	const [resizing, setResizing] = useState(false);
 	const { data, error, loading } = useApi<undefined, Project[]>('GET', 'project');
@@ -64,13 +64,17 @@ export default function Sidebar(): JSX.Element {
 								<ListboxItem
 									key={project.id}
 									className={style.listboxItem}
+									textValue={project.name}
 								>
 									<span>{project.name}</span>
 									<span>{dayjs(project.createdAt).fromNow()}</span>
 								</ListboxItem>
 							))}
 						</ListboxSection>
-						<ListboxItem key='create-project'>
+						<ListboxItem
+							key='create-project'
+							textValue='New Project'
+						>
 							<span>New Project</span>
 						</ListboxItem>
 					</Listbox>
