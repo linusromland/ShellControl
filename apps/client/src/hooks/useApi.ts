@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
-import env from '../utils/env.util';
+import Storage, { StorageConfigKey } from '../utils/storage.util';
 import { Response } from '@local/shared/types';
 
 function useApi<Req, Res>(method: string, path: string, body?: Req) {
 	const [data, setData] = useState<Response<Res>>();
 	const [error, setError] = useState<Error>();
 	const [loading, setLoading] = useState<boolean>(false);
+
+	const storage = new Storage();
+	const API_URL = storage.get(StorageConfigKey.API_URL);
 
 	useEffect(() => {
 		setData(undefined);
@@ -21,7 +24,7 @@ function useApi<Req, Res>(method: string, path: string, body?: Req) {
 				}
 			};
 
-			let url = `${env.API_URL}/${path}`;
+			let url = `${API_URL}/${path}`;
 
 			if (['get', 'delete'].includes(requestMethod)) {
 				if (body) {
