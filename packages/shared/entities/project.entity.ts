@@ -27,4 +27,10 @@ export class Project extends Model<Project> {
 		allowNull: false
 	})
 	startCommand: string;
+
+	@Column({
+		type: DataType.BOOLEAN,
+		allowNull: false
+	})
+	autoStart: boolean;
 }

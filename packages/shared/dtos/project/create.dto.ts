@@ -3,4 +3,5 @@ export interface CreateProjectDto {
 	description?: string;
 	directory: string;
 	startCommand: string;
+	autoStart: boolean;
 }
