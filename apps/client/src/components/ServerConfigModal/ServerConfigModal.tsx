@@ -1,7 +1,6 @@
 import { Modal, ModalContent, ModalBody, ModalFooter, Input, Button, ModalHeader, Code } from '@nextui-org/react';
 import { useCallback, useEffect, useState } from 'react';
 import Storage, { StorageConfigKey } from '../../utils/storage.util';
-import style from './ServerConfigModal.module.css';
 
 type ServerConfigModalProps = {
 	children?: JSX.Element | JSX.Element[];
@@ -78,8 +77,9 @@ export default function ServerConfigModal({ children }: ServerConfigModalProps):
 						label='URL'
 						value={url}
 						onChange={(e) => setUrl(e.target.value)}
+						isInvalid={!!error}
+						errorMessage={error}
 					/>
-					{error && <p className={style.errorText}>{error}</p>}
 				</ModalBody>
 				<ModalFooter>
 					<Button
