@@ -1,12 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { startCase } from 'lodash';
-import { Avatar, Divider, Tooltip, Select, SelectItem } from '@nextui-org/react';
+import { Avatar, Divider, Tooltip } from '@nextui-org/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
-import LightModeIcon from '@mui/icons-material/LightMode';
-import DarkModeIcon from '@mui/icons-material/DarkMode';
-import BrightnessAutoIcon from '@mui/icons-material/BrightnessAuto';
 import CreateProjectModal from '../CreateProjectModal/CreateProjectModal';
+import ThemeSelector from './components/ThemeSelector/ThemeSelector';
 import { useProjects } from '../../contexts/Projects.context';
 import { useTheme } from '../../contexts/Theme.context';
 import style from './Sidebar.module.css';
@@ -21,8 +19,7 @@ export default function Sidebar(): JSX.Element {
 	const [showCreateProject, setShowCreateProject] = useState(false);
 
 	const { projects, projectStatuses, fetchProjects } = useProjects();
-	const { setTheme, theme, activeTheme } = useTheme();
-
+	const { theme } = useTheme();
 	const sidebarRef = useRef<HTMLDivElement>(null);
 	const navigate = useNavigate();
 	const { id } = useParams();
@@ -148,79 +145,7 @@ export default function Sidebar(): JSX.Element {
 				<Divider />
 
 				<div className={style.footer}>
-					{collapsed ? (
-						<Tooltip
-							content={`Theme: ${startCase(activeTheme)}`}
-							isDisabled={!collapsed}
-							placement='right'
-							showArrow
-						>
-							<div
-								className={style.action}
-								onClick={() => {
-									if (activeTheme === 'light') {
-										setTheme('dark');
-									} else if (activeTheme === 'dark') {
-										setTheme('auto');
-									} else {
-										setTheme('light');
-									}
-								}}
-							>
-								<Avatar
-									key={activeTheme}
-									icon={
-										activeTheme === 'light' ? (
-											<LightModeIcon fontSize='small' />
-										) : activeTheme === 'dark' ? (
-											<DarkModeIcon fontSize='small' />
-										) : (
-											<BrightnessAutoIcon fontSize='small' />
-										)
-									}
-								/>
-							</div>
-						</Tooltip>
-					) : (
-						<Select
-							aria-label='Theme'
-							selectedKeys={[activeTheme]}
-							startContent={
-								activeTheme === 'light' ? (
-									<LightModeIcon />
-								) : activeTheme === 'dark' ? (
-									<DarkModeIcon />
-								) : (
-									<BrightnessAutoIcon />
-								)
-							}
-						>
-							<SelectItem
-								aria-label='Light'
-								key='light'
-								onClick={() => setTheme('light')}
-								startContent={<LightModeIcon />}
-							>
-								Light
-							</SelectItem>
-							<SelectItem
-								aria-label='Dark'
-								key='dark'
-								onClick={() => setTheme('dark')}
-								startContent={<DarkModeIcon />}
-							>
-								Dark
-							</SelectItem>
-							<SelectItem
-								aria-label='Auto'
-								key='auto'
-								onClick={() => setTheme('auto')}
-								startContent={<BrightnessAutoIcon />}
-							>
-								Auto
-							</SelectItem>
-						</Select>
-					)}
+					<ThemeSelector small={collapsed} />
 				</div>
 			</div>
 

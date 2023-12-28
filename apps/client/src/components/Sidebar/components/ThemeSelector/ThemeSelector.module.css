@@ -1,0 +1,13 @@
+.action {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	transition: all 0.2s ease;
+	padding: 0.25rem;
+	border-radius: 9999px;
+}
+
+.action:hover {
+	cursor: pointer;
+	background: #e6e4e4;
+}
