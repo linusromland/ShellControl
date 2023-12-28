@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { Avatar, Divider, Tooltip, Select, SelectItem } from '@nextui-org/react';
 import { startCase } from 'lodash';
+import { Avatar, Divider, Tooltip, Select, SelectItem } from '@nextui-org/react';
+import { useNavigate, useParams } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
@@ -12,7 +13,6 @@ import style from './Sidebar.module.css';
 
 export default function Sidebar(): JSX.Element {
 	// TODO: FIX THESE WITH ACTUAL VALUES
-	const active = 1;
 	const version = '1.0.0';
 
 	const [collapsed, setCollapsed] = useState(false);
@@ -21,9 +21,11 @@ export default function Sidebar(): JSX.Element {
 	const [showCreateProject, setShowCreateProject] = useState(false);
 
 	const { projects, projectStatuses, fetchProjects } = useProjects();
-	const { setTheme, activeTheme } = useTheme();
+	const { setTheme, theme, activeTheme } = useTheme();
 
 	const sidebarRef = useRef<HTMLDivElement>(null);
+	const navigate = useNavigate();
+	const { id } = useParams();
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {
@@ -68,11 +70,15 @@ export default function Sidebar(): JSX.Element {
 		<div
 			ref={sidebarRef}
 			className={`${style.sidebar} ${collapsed ? style.collapsed : ''}`}
-			style={{ width }}
+			style={{
+				width,
+				background: theme === 'light' ? '#fff' : '#1e1e1e',
+				color: theme === 'light' ? '#000' : '#fff'
+			}}
 		>
 			<div className={style.content}>
 				<div className={`${style.title} ${collapsed ? style.collapsedTitle : ''}`}>
-					<Avatar src='favicon.png' />
+					<Avatar src='/favicon.png' />
 					{!collapsed && (
 						<div className={style.titleText}>
 							<h1>ShellControl</h1>
@@ -84,36 +90,41 @@ export default function Sidebar(): JSX.Element {
 				<Divider />
 
 				<div className={style.projects}>
-					{projects.map((project) => (
-						<Tooltip
-							content={project.name}
-							key={project.id}
-							isDisabled={!collapsed}
-							placement='right'
-							showArrow
-						>
-							<div
-								className={`${style.project} ${
-									project.id === active && !collapsed ? style.activeProject : ''
-								}`}
-								onClick={() => console.log(project)}
+					{projects.map((project) => {
+						const isActiveProject = project.id.toString() === id;
+
+						return (
+							<Tooltip
+								content={project.name}
+								key={project.id}
+								isDisabled={!collapsed}
+								placement='right'
+								showArrow
 							>
-								<Avatar
-									name={project.name}
-									color={project.id === active ? (collapsed ? 'primary' : 'secondary') : 'default'}
-								/>
-								{!collapsed && (
-									<div className={style.projectText}>
-										<span>{project.name}</span>
-										<span className={style.status}>
-											Status:{' '}
-											{startCase((projectStatuses[project.id] || 'STOPPED').toLowerCase())}
-										</span>
-									</div>
-								)}
-							</div>
-						</Tooltip>
-					))}
+								<div
+									className={`${style.project} ${
+										isActiveProject && !collapsed ? style.activeProject : ''
+									}`}
+									onClick={() => navigate(`/project/${project.id}`)}
+								>
+									<Avatar
+										name={project.name}
+										color={isActiveProject ? (collapsed ? 'primary' : 'secondary') : 'default'}
+										key={project.id + isActiveProject}
+									/>
+									{!collapsed && (
+										<div className={style.projectText}>
+											<span>{project.name}</span>
+											<span className={style.status}>
+												Status:{' '}
+												{startCase((projectStatuses[project.id] || 'STOPPED').toLowerCase())}
+											</span>
+										</div>
+									)}
+								</div>
+							</Tooltip>
+						);
+					})}
 				</div>
 
 				<Divider />
