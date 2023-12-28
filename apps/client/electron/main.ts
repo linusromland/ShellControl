@@ -47,6 +47,10 @@ function createWindow() {
 		event.returnValue = app.getAppPath();
 	});
 
+	ipcMain.on('getDirname', (event, filePath: string) => {
+		event.returnValue = path.dirname(filePath);
+	});
+
 	if (VITE_DEV_SERVER_URL) {
 		win.loadURL(VITE_DEV_SERVER_URL);
 	} else {

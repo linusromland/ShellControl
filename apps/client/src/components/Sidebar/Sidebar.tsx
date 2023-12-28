@@ -5,6 +5,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { Project } from '@local/shared/entities';
 import style from './Sidebar.module.css';
 import useApi from '../../hooks/useApi';
+import CreateProjectModal from '../CreateProjectModal/CreateProjectModal';
 
 dayjs.extend(relativeTime);
 
@@ -12,6 +13,8 @@ export default function Sidebar(): JSX.Element {
 	const [collapsed] = useState(false);
 	const [width, setWidth] = useState(250);
 	const [resizing, setResizing] = useState(false);
+	const [showCreateProject, setShowCreateProject] = useState(false);
+
 	const { data, error, loading } = useApi<undefined, Project[]>('GET', 'project');
 
 	const sidebarRef = useRef<HTMLDivElement>(null);
@@ -74,6 +77,7 @@ export default function Sidebar(): JSX.Element {
 						<ListboxItem
 							key='create-project'
 							textValue='New Project'
+							onClick={() => setShowCreateProject(true)}
 						>
 							<span>New Project</span>
 						</ListboxItem>
@@ -83,6 +87,11 @@ export default function Sidebar(): JSX.Element {
 			<div
 				className={style.resizeHandle}
 				onMouseDown={handleMouseDown}
+			/>
+
+			<CreateProjectModal
+				isOpen={showCreateProject}
+				onClose={() => setShowCreateProject(false)}
 			/>
 		</div>
 	);
