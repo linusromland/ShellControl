@@ -23,8 +23,8 @@ function createWindow() {
 		win?.webContents.send('main-process-message', new Date().toLocaleString());
 	});
 
-	ipcMain.on('fsExistsSync', (event, path: fs.PathLike) => {
-		event.returnValue = fs.existsSync(path);
+	ipcMain.on('fsExistsSync', (event, filePath: fs.PathLike) => {
+		event.returnValue = fs.existsSync(filePath);
 	});
 
 	ipcMain.on(
@@ -39,8 +39,8 @@ function createWindow() {
 		}
 	);
 
-	ipcMain.on('fsReadFileSync', (event, path: fs.PathOrFileDescriptor) => {
-		event.returnValue = fs.readFileSync(path, 'utf8');
+	ipcMain.on('fsReadFileSync', (event, filePath: fs.PathOrFileDescriptor) => {
+		event.returnValue = fs.readFileSync(filePath, 'utf8');
 	});
 
 	ipcMain.on('getAppPath', (event) => {
