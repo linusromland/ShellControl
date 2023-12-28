@@ -1,23 +1,33 @@
 import { Input, Switch, Button } from '@nextui-org/react';
+import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import { CreateProjectDto, UpdateProjectDto } from '@local/shared/dtos';
 import style from './ProjectForm.module.css';
 import { Project } from '@local/shared/entities';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
-type ProjectFormProps = {
-	newProject?: boolean;
-	initialValues?: Project;
-	onSave: (project: CreateProjectDto | UpdateProjectDto) => void;
+type CreateProjectFormProps = {
+	newProject: true;
+	initialValues?: undefined;
+	onSave: (project: CreateProjectDto, startAfterCreate: boolean) => void;
 };
 
+type UpdateProjectFormProps = {
+	newProject?: false;
+	initialValues: Project;
+	onSave: (project: UpdateProjectDto) => void;
+};
+
+type ProjectFormProps = CreateProjectFormProps | UpdateProjectFormProps;
+
 export default function ProjectForm({ newProject, initialValues, onSave }: ProjectFormProps): JSX.Element {
+	const fileDirectoryRef = useRef<HTMLInputElement>(null);
+
 	const [name, setName] = useState<string>(initialValues?.name || '');
 	const [description, setDescription] = useState<string>(initialValues?.description || '');
 	const [directory, setDirectory] = useState<string>(initialValues?.directory || '');
 	const [startCommand, setStartCommand] = useState<string>(initialValues?.startCommand || '');
 	const [autoStart, setAutoStart] = useState<boolean>(initialValues?.autoStart || false);
 	const [startAfterCreate, setStartAfterCreate] = useState<boolean>(false);
-
 	const [errors, setErrors] = useState<Record<string, string>>({});
 
 	return (
@@ -30,6 +40,7 @@ export default function ProjectForm({ newProject, initialValues, onSave }: Proje
 					onChange={(e) => setName(e.target.value)}
 					isInvalid={!!errors.name}
 					errorMessage={errors.name}
+					isRequired={newProject}
 				/>
 			</div>
 			<div className={style.formRow}>
@@ -47,10 +58,20 @@ export default function ProjectForm({ newProject, initialValues, onSave }: Proje
 					aria-label='Directory'
 					label='Directory'
 					value={directory}
-					type='file'
 					onChange={(e) => setDirectory(e.target.value)}
 					isInvalid={!!errors.directory}
 					errorMessage={errors.directory}
+					endContent={
+						<Button
+							variant='flat'
+							onClick={() => {
+								fileDirectoryRef.current?.click();
+							}}
+						>
+							<FolderOpenIcon />
+						</Button>
+					}
+					isRequired={newProject}
 				/>
 			</div>
 			<div className={style.formRow}>
@@ -61,13 +82,20 @@ export default function ProjectForm({ newProject, initialValues, onSave }: Proje
 					onChange={(e) => setStartCommand(e.target.value)}
 					isInvalid={!!errors.startCommand}
 					errorMessage={errors.startCommand}
+					isRequired={newProject}
 				/>
 			</div>
 			<div className={style.formRow}>
 				<Switch
 					aria-label='Auto Start'
-					checked={autoStart}
-					onChange={(e) => setAutoStart(e.target.checked)}
+					isSelected={autoStart}
+					onValueChange={(checked) => {
+						setAutoStart(checked);
+
+						if (checked) {
+							setStartAfterCreate(true);
+						}
+					}}
 				>
 					Auto Start
 				</Switch>
@@ -76,8 +104,10 @@ export default function ProjectForm({ newProject, initialValues, onSave }: Proje
 				<div className={style.formRow}>
 					<Switch
 						aria-label='Start After Create'
-						checked={startAfterCreate}
-						onChange={(e) => setStartAfterCreate(e.target.checked)}
+						isSelected={startAfterCreate}
+						onValueChange={setStartAfterCreate}
+						isDisabled={autoStart}
+						className={autoStart ? style.disabled : ''}
 					>
 						Start After Create
 					</Switch>
@@ -93,10 +123,6 @@ export default function ProjectForm({ newProject, initialValues, onSave }: Proje
 							errors.name = 'Name is required';
 						}
 
-						if (!description) {
-							errors.description = 'Description is required';
-						}
-
 						if (!directory) {
 							errors.directory = 'Directory is required';
 						}
@@ -110,7 +136,35 @@ export default function ProjectForm({ newProject, initialValues, onSave }: Proje
 							return;
 						}
 
-						const project: CreateProjectDto | UpdateProjectDto = {
+						// If update, just send the updated fields
+						if (!newProject) {
+							const updateProject: UpdateProjectDto = {};
+
+							if (name !== initialValues?.name) {
+								updateProject.name = name;
+							}
+
+							if (description !== initialValues?.description) {
+								updateProject.description = description;
+							}
+
+							if (directory !== initialValues?.directory) {
+								updateProject.directory = directory;
+							}
+
+							if (startCommand !== initialValues?.startCommand) {
+								updateProject.startCommand = startCommand;
+							}
+
+							if (autoStart !== initialValues?.autoStart) {
+								updateProject.autoStart = autoStart;
+							}
+
+							onSave(updateProject);
+							return;
+						}
+
+						const createProject: CreateProjectDto = {
 							name,
 							description,
 							directory,
@@ -118,13 +172,31 @@ export default function ProjectForm({ newProject, initialValues, onSave }: Proje
 							autoStart
 						};
 
-						onSave(project);
+						onSave(createProject, startAfterCreate);
 					}}
 					color='primary'
 				>
 					Save
 				</Button>
 			</div>
+
+			<input
+				ref={fileDirectoryRef}
+				type='file'
+				// @ts-expect-error webkitRelativePath is not in the HTMLInputElement type definition but it is a valid property
+				webkitdirectory=''
+				style={{ display: 'none' }}
+				onChange={(e) => {
+					const filePath = e.target.files?.[0]?.path;
+
+					if (!filePath) {
+						return;
+					}
+
+					const directoryPath = window.ipcRenderer.sendSync('getDirname', filePath);
+					setDirectory(directoryPath);
+				}}
+			/>
 		</>
 	);
 }
