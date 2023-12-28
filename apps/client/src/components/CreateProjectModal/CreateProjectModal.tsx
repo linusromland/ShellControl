@@ -5,7 +5,7 @@ import { Project } from '@local/shared/entities';
 import ProjectForm from '../ProjectForm/ProjectForm';
 import style from './CreateProjectModal.module.css';
 import { fetchUtil } from '../../utils/fetch.util';
-import { useProjects } from '../../context/Projects.context';
+import { useProjects } from '../../contexts/Projects.context';
 
 type CreateProjectModalProps = {
 	isOpen: boolean;

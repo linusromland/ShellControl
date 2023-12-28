@@ -4,6 +4,7 @@ import { fetchUtil } from '../utils/fetch.util';
 
 interface ProjectsContextProps {
 	projects: Project[];
+	projectStatuses: Record<number, string>;
 	fetchProjects: () => void;
 }
 
@@ -22,6 +23,7 @@ export const useProjects = (): ProjectsContextProps => {
 
 export const ProjectsProvider = ({ children }: { children: ReactNode }): JSX.Element => {
 	const [projects, setProjects] = useState<Project[]>([]);
+	const [projectStatuses, setProjectStatuses] = useState<Record<number, string>>({});
 
 	const fetchProjects = async (): Promise<void> => {
 		const response = await fetchUtil<Project[]>('project', {
@@ -31,7 +33,29 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }): JSX.Ele
 		if (!response.success) throw new Error(response.message);
 
 		setProjects(response.data || []);
+
+		const getStatusPromises = response.data?.map((project) => getProjectStatus(project.id));
+		await Promise.all(getStatusPromises || []);
 	};
 
-	return <ProjectsContext.Provider value={{ projects, fetchProjects }}>{children}</ProjectsContext.Provider>;
+	const getProjectStatus = async (projectId: number) => {
+		const response = await fetchUtil<string>(`commandRunner/status/${projectId}`, {
+			method: 'GET'
+		});
+
+		if (!response.success) throw new Error(response.message);
+
+		const status = response.data || 'STOPPED';
+
+		setProjectStatuses((prev) => ({
+			...prev,
+			[projectId]: status
+		}));
+	};
+
+	return (
+		<ProjectsContext.Provider value={{ projects, projectStatuses, fetchProjects }}>
+			{children}
+		</ProjectsContext.Provider>
+	);
 };

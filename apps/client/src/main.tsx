@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { NextUIProvider } from '@nextui-org/react';
-import { ProjectsProvider } from './context/Projects.context';
+import { ProjectsProvider } from './contexts/Projects.context';
 import Router from './routes';
 import './tailwind.css';
 
