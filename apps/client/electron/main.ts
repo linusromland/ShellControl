@@ -43,7 +43,7 @@ function createWindow() {
 		event.returnValue = fs.readFileSync(path, 'utf8');
 	});
 
-	ipcMain.on('get-app-path', (event) => {
+	ipcMain.on('getAppPath', (event) => {
 		event.returnValue = app.getAppPath();
 	});
 

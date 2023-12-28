@@ -10,7 +10,7 @@ export interface StorageConfig {
 
 export default class Storage {
 	private fs = getFs();
-	private configPath = `${window.ipcRenderer.sendSync('get-app-path')}/storage.json`;
+	private configPath = `${window.ipcRenderer.sendSync('getAppPath')}/storage.json`;
 	private config: StorageConfig = {};
 
 	constructor() {
