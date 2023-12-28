@@ -2,9 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { NextUIProvider } from '@nextui-org/react';
 import { ProjectsProvider } from './contexts/Projects.context';
+import { ThemeProvider } from './contexts/Theme.context';
 import Router from './routes';
 import './tailwind.css';
-import { ThemeProvider } from './contexts/Theme.context';
+import './main.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>

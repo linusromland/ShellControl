@@ -62,6 +62,7 @@ export default function ThemeSelector({ small }: ThemeSelectorProps) {
 					<BrightnessAutoIcon />
 				)
 			}
+			size='sm'
 		>
 			<SelectItem
 				aria-label='Light'
