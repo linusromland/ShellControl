@@ -1,14 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
-import { Avatar, Divider, Tooltip } from '@nextui-org/react';
+import { Avatar, Divider, Tooltip, Select, SelectItem } from '@nextui-org/react';
 import { startCase } from 'lodash';
 import AddIcon from '@mui/icons-material/Add';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import BrightnessAutoIcon from '@mui/icons-material/BrightnessAuto';
 import CreateProjectModal from '../CreateProjectModal/CreateProjectModal';
 import { useProjects } from '../../contexts/Projects.context';
+import { useTheme } from '../../contexts/Theme.context';
 import style from './Sidebar.module.css';
 
 export default function Sidebar(): JSX.Element {
 	// TODO: FIX THESE WITH ACTUAL VALUES
-	const active = 2;
+	const active = 1;
 	const version = '1.0.0';
 
 	const [collapsed, setCollapsed] = useState(false);
@@ -17,6 +21,7 @@ export default function Sidebar(): JSX.Element {
 	const [showCreateProject, setShowCreateProject] = useState(false);
 
 	const { projects, projectStatuses, fetchProjects } = useProjects();
+	const { setTheme, activeTheme } = useTheme();
 
 	const sidebarRef = useRef<HTMLDivElement>(null);
 
@@ -25,11 +30,11 @@ export default function Sidebar(): JSX.Element {
 			if (resizing) {
 				const resizeWidth = e.clientX;
 
-				if (resizeWidth < 250) {
+				if (resizeWidth < 150) {
 					setCollapsed(true);
 				}
 
-				if (collapsed && resizeWidth > 250) {
+				if (collapsed && resizeWidth > 150) {
 					setCollapsed(false);
 				}
 
@@ -66,7 +71,7 @@ export default function Sidebar(): JSX.Element {
 			style={{ width }}
 		>
 			<div className={style.content}>
-				<div className={style.title}>
+				<div className={`${style.title} ${collapsed ? style.collapsedTitle : ''}`}>
 					<Avatar src='favicon.png' />
 					{!collapsed && (
 						<div className={style.titleText}>
@@ -88,7 +93,9 @@ export default function Sidebar(): JSX.Element {
 							showArrow
 						>
 							<div
-								className={`${style.project} ${project.id === active ? style.activeProject : ''}`}
+								className={`${style.project} ${
+									project.id === active && !collapsed ? style.activeProject : ''
+								}`}
 								onClick={() => console.log(project)}
 							>
 								<Avatar
@@ -122,13 +129,87 @@ export default function Sidebar(): JSX.Element {
 							className={style.action}
 							onClick={() => setShowCreateProject(true)}
 						>
-							<Avatar
-								size='sm'
-								icon={<AddIcon fontSize='small' />}
-							/>
+							<Avatar icon={<AddIcon fontSize='small' />} />
 							{!collapsed && <span>Create Project</span>}
 						</div>
 					</Tooltip>
+				</div>
+				<Divider />
+
+				<div className={style.footer}>
+					{collapsed ? (
+						<Tooltip
+							content={`Theme: ${startCase(activeTheme)}`}
+							isDisabled={!collapsed}
+							placement='right'
+							showArrow
+						>
+							<div
+								className={style.action}
+								onClick={() => {
+									if (activeTheme === 'light') {
+										setTheme('dark');
+									} else if (activeTheme === 'dark') {
+										setTheme('auto');
+									} else {
+										setTheme('light');
+									}
+								}}
+							>
+								<Avatar
+									key={activeTheme}
+									icon={
+										activeTheme === 'light' ? (
+											<LightModeIcon fontSize='small' />
+										) : activeTheme === 'dark' ? (
+											<DarkModeIcon fontSize='small' />
+										) : (
+											<BrightnessAutoIcon fontSize='small' />
+										)
+									}
+								/>
+							</div>
+						</Tooltip>
+					) : (
+						<Select
+							aria-label='Theme'
+							selectedKeys={[activeTheme]}
+							startContent={
+								activeTheme === 'light' ? (
+									<LightModeIcon />
+								) : activeTheme === 'dark' ? (
+									<DarkModeIcon />
+								) : (
+									<BrightnessAutoIcon />
+								)
+							}
+						>
+							<SelectItem
+								aria-label='Light'
+								key='light'
+								onClick={() => setTheme('light')}
+								startContent={<LightModeIcon />}
+							>
+								Light
+							</SelectItem>
+							<SelectItem
+								aria-label='Dark'
+								key='dark'
+								onClick={() => setTheme('dark')}
+								startContent={<DarkModeIcon />}
+							>
+								Dark
+							</SelectItem>
+							<SelectItem
+								aria-label='Auto'
+								key='auto'
+								onClick={() => setTheme('auto')}
+								startContent={<BrightnessAutoIcon />}
+							>
+								Auto
+							</SelectItem>
+						</Select>
+					)}
 				</div>
 			</div>
 

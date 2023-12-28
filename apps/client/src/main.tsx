@@ -4,12 +4,15 @@ import { NextUIProvider } from '@nextui-org/react';
 import { ProjectsProvider } from './contexts/Projects.context';
 import Router from './routes';
 import './tailwind.css';
+import { ThemeProvider } from './contexts/Theme.context';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>
 		<NextUIProvider>
 			<ProjectsProvider>
-				<Router />
+				<ThemeProvider>
+					<Router />
+				</ThemeProvider>
 			</ProjectsProvider>
 		</NextUIProvider>
 	</React.StrictMode>
