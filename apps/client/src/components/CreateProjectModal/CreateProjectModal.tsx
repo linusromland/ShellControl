@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Modal, ModalContent, ModalBody, ModalHeader } from '@nextui-org/react';
-import ProjectForm from '../ProjectForm/ProjectForm';
 import { CreateProjectDto } from '@local/shared/dtos';
+import { Project } from '@local/shared/entities';
+import ProjectForm from '../ProjectForm/ProjectForm';
 import style from './CreateProjectModal.module.css';
 import { fetchUtil } from '../../utils/fetch.util';
-import { Project } from '@local/shared/entities';
+import { useProjects } from '../../context/Projects.context';
 
 type CreateProjectModalProps = {
 	isOpen: boolean;
@@ -13,6 +14,8 @@ type CreateProjectModalProps = {
 
 export default function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps): JSX.Element {
 	const [error, setError] = useState('');
+
+	const { fetchProjects } = useProjects();
 
 	const handleSave = async (project: CreateProjectDto, startAfterCreate: boolean) => {
 		const response = await fetchUtil<Project>('project', {
@@ -40,6 +43,9 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
 				return;
 			}
 		}
+
+		fetchProjects();
+		onClose();
 
 		// Todo: navigate to project page
 	};

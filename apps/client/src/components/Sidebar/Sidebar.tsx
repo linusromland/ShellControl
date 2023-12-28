@@ -1,11 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { Spinner, Listbox, ListboxItem, ListboxSection } from '@nextui-org/react';
+import { Listbox, ListboxItem, ListboxSection } from '@nextui-org/react';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { Project } from '@local/shared/entities';
-import style from './Sidebar.module.css';
-import useApi from '../../hooks/useApi';
 import CreateProjectModal from '../CreateProjectModal/CreateProjectModal';
+import { useProjects } from '../../context/Projects.context';
+import style from './Sidebar.module.css';
 
 dayjs.extend(relativeTime);
 
@@ -15,7 +14,7 @@ export default function Sidebar(): JSX.Element {
 	const [resizing, setResizing] = useState(false);
 	const [showCreateProject, setShowCreateProject] = useState(false);
 
-	const { data, error, loading } = useApi<undefined, Project[]>('GET', 'project');
+	const { projects, fetchProjects } = useProjects();
 
 	const sidebarRef = useRef<HTMLDivElement>(null);
 
@@ -43,9 +42,10 @@ export default function Sidebar(): JSX.Element {
 		};
 	}, [resizing]);
 
-	const handleMouseDown = () => {
-		setResizing(true);
-	};
+	useEffect(() => {
+		fetchProjects();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	return (
 		<div
@@ -55,15 +55,13 @@ export default function Sidebar(): JSX.Element {
 		>
 			<div className={style.content}>
 				<h1 className={style.title}>ShellControl</h1>
-				{loading && <Spinner />}
-				{error && <p>{error as unknown as string}</p>}
-				{!loading && data && (
+				{projects && (
 					<Listbox>
 						<ListboxSection
 							title='Projects'
 							showDivider
 						>
-							{data.data.map((project) => (
+							{projects.map((project) => (
 								<ListboxItem
 									key={project.id}
 									className={style.listboxItem}
@@ -86,7 +84,9 @@ export default function Sidebar(): JSX.Element {
 			</div>
 			<div
 				className={style.resizeHandle}
-				onMouseDown={handleMouseDown}
+				onMouseDown={() => {
+					setResizing(true);
+				}}
 			/>
 
 			<CreateProjectModal
