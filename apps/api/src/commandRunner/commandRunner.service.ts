@@ -21,7 +21,7 @@ export class CommandRunnerService {
 	private runningCommands: Map<number, ChildProcessWithoutNullStreams> = new Map();
 	private logs: Map<number, string[]> = new Map();
 
-	async runCommand(projectId: number) {
+	async startCommand(projectId: number) {
 		try {
 			const project = await this.projectService.findOne(projectId);
 

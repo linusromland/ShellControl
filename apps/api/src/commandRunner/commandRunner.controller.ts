@@ -8,11 +8,11 @@ import { InternalServerErrorException, getValidResponse } from '../utils/getResp
 export class CommandRunnerController {
 	constructor(private readonly commandRunnerService: CommandRunnerService) {}
 
-	@Post('run/:projectId')
+	@Post('start/:projectId')
 	@HttpCode(HttpStatus.OK)
-	async runCommand(@Param('projectId') projectId: number): Promise<Response<void>> {
+	async startCommand(@Param('projectId') projectId: number): Promise<Response<void>> {
 		try {
-			await this.commandRunnerService.runCommand(projectId);
+			await this.commandRunnerService.startCommand(projectId);
 			return getValidResponse('Command started successfully');
 		} catch (error) {
 			throw new InternalServerErrorException('Failed to start command');
