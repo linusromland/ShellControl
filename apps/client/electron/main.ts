@@ -17,7 +17,11 @@ function createWindow() {
 		autoHideMenuBar: true
 	});
 
-	win.webContents.openDevTools();
+	win.webContents.on('before-input-event', (_, input) => {
+		if (input.key === 'F12') {
+			win?.webContents.toggleDevTools();
+		}
+	});
 
 	win.webContents.on('did-finish-load', () => {
 		win?.webContents.send('main-process-message', new Date().toLocaleString());
