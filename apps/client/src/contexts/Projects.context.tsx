@@ -38,6 +38,8 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }): JSX.Ele
 		await Promise.all(getStatusPromises || []);
 	};
 
+	// TODO: ADD WS SOCKETIO THING HERE FOR THE PROJECT STATUSES
+
 	const getProjectStatus = async (projectId: number) => {
 		const response = await fetchUtil<string>(`commandRunner/status/${projectId}`, {
 			method: 'GET'
