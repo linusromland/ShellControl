@@ -85,7 +85,7 @@ export default function ServerConfigModal({ children }: ServerConfigModalProps):
 					<Button
 						color='primary'
 						onClick={handleSave}
-						disabled={!url}
+						isDisabled={!url}
 					>
 						Save
 					</Button>
