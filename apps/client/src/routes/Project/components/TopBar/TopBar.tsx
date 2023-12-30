@@ -35,6 +35,18 @@ export default function TopBar({ project }: TopBarProps) {
 		await handleStartStop('start');
 	}, [handleStartStop]);
 
+	const handleStartStopButton = useCallback(async () => {
+		setButtonLoading('start-stop');
+		await handleStartStop(projectStatus === 'STOPPED' ? 'start' : 'stop');
+		setButtonLoading('');
+	}, [handleStartStop, projectStatus]);
+
+	const handleRestartButton = useCallback(async () => {
+		setButtonLoading('restart');
+		await handleRestart();
+		setButtonLoading('');
+	}, [handleRestart]);
+
 	return (
 		<div className={style.header}>
 			<div className={style.title}>
@@ -47,11 +59,7 @@ export default function TopBar({ project }: TopBarProps) {
 				<Button
 					color='primary'
 					startContent={projectStatus === 'STOPPED' ? <PlayCircleFilledWhiteIcon /> : <StopCircleIcon />}
-					onClick={async () => {
-						setButtonLoading('start-stop');
-						await handleStartStop(projectStatus === 'STOPPED' ? 'start' : 'stop');
-						setButtonLoading('');
-					}}
+					onClick={handleStartStopButton}
 					isLoading={buttonLoading === 'start-stop'}
 				>
 					{projectStatus === 'STOPPED' ? 'Start' : 'Stop'}
@@ -59,11 +67,7 @@ export default function TopBar({ project }: TopBarProps) {
 				<Button
 					color={'primary'}
 					startContent={<RestartAltIcon />}
-					onClick={async () => {
-						setButtonLoading('restart');
-						await handleRestart();
-						setButtonLoading('');
-					}}
+					onClick={handleRestartButton}
 					isLoading={buttonLoading === 'restart'}
 					isDisabled={projectStatus === 'STOPPED'}
 				>

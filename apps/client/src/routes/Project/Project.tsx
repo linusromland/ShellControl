@@ -31,15 +31,9 @@ const Project: React.FC = () => {
 			<TopBar project={project} />
 			<Divider />
 			<Tabs className={style.tabs}>
-				<Tab value='1'>
-					<p>Current session</p>
-				</Tab>
-				<Tab value='2'>
-					<p>Previous sessions</p>
-				</Tab>
-				<Tab value='2'>
-					<p>Settings</p>
-				</Tab>
+				<Tab>Current session</Tab>
+				<Tab>Previous sessions</Tab>
+				<Tab>Settings</Tab>
 			</Tabs>
 		</div>
 	);
