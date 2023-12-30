@@ -9,17 +9,24 @@ import {
 	NotFoundException,
 	isHttpException
 } from '../utils/getResponse';
+import { InjectModel } from '@nestjs/sequelize';
+import { Log, Session } from '@local/shared/entities';
 
 @Injectable()
 export class CommandRunnerService {
 	constructor(
 		private readonly projectService: ProjectService,
-		private readonly commandRunnerGateway: CommandRunnerGateway
+		private readonly commandRunnerGateway: CommandRunnerGateway,
+
+		@InjectModel(Session)
+		private sessionModel: typeof Session,
+
+		@InjectModel(Log)
+		private logModel: typeof Log
 	) {}
 
 	private logger = new Logger('CommandRunnerService');
 	private runningCommands: Map<number, ChildProcessWithoutNullStreams> = new Map();
-	private logs: Map<number, string[]> = new Map();
 
 	async startCommand(projectId: number) {
 		try {
@@ -38,15 +45,37 @@ export class CommandRunnerService {
 				throw new BadRequestException('Command is already running for this project.');
 			}
 
+			const sessions = await this.sessionModel.findAll({ where: { projectId, stopReason: '' } });
+
+			if (sessions.length > 0) {
+				this.logger.log(`Stopping ${sessions.length} running sessions for project ${projectId}`);
+
+				for (const session of sessions) {
+					this.logger.log(`Stopping session ${session.id}`);
+					this.removeStoppedCommand(projectId, '0');
+				}
+			}
+
+			const session = await this.sessionModel.create({
+				projectId,
+				stopReason: '',
+				createdAt: new Date(),
+				updatedAt: new Date()
+			});
+
 			const subprocess = spawn(command, [], { cwd, shell: true, stdio: 'pipe' });
 			this.runningCommands.set(projectId, subprocess);
+			this.commandRunnerGateway.broadcastToRoom('status', projectId.toString(), CommandStatus.RUNNING);
 
-			const onData = (data: Buffer) => {
-				const log = data.toString();
-				const logs = this.logs.get(projectId) || [];
-				logs.push(log);
+			const onData = async (data: Buffer) => {
+				const log = await this.logModel.create({
+					message: data.toString(),
+					sessionId: session.id,
+					createdAt: new Date(),
+					updatedAt: new Date()
+				});
+
 				this.commandRunnerGateway.broadcastToRoom(`${projectId}`, 'log', log);
-				this.logs.set(projectId, logs);
 			};
 
 			subprocess.stdout.on('data', onData);
@@ -56,24 +85,13 @@ export class CommandRunnerService {
 				this.logger.error(`Command error: ${error}`);
 			});
 
-			subprocess.on('exit', (code, signal) => {
+			subprocess.on('exit', async (code, signal) => {
 				this.logger.log(`Command exited with code ${code}, signal ${signal}`);
-			});
 
-			subprocess.on('message', (message) => {
-				this.logger.log(`Command message: ${message}`);
-			});
+				const stopReason = code === 0 ? CommandStatus.STOPPED : CommandStatus.CRASHED;
 
-			subprocess.on('disconnect', () => {
-				this.logger.log('Command disconnected.');
-			});
-
-			subprocess.on('close', (code, signal) => {
-				this.logger.log(`Command closed with code ${code}, signal ${signal}`);
-			});
-
-			subprocess.on('spawn', () => {
-				this.logger.log(`Command "${command}" spawned.`);
+				this.commandRunnerGateway.broadcastToRoom('status', projectId.toString(), stopReason);
+				this.removeStoppedCommand(projectId, stopReason);
 			});
 		} catch (error) {
 			if (isHttpException(error)) {
@@ -84,7 +102,7 @@ export class CommandRunnerService {
 		}
 	}
 
-	stopCommand(projectId: number) {
+	async stopCommand(projectId: number) {
 		try {
 			const childProcess = this.runningCommands.get(projectId);
 
@@ -94,7 +112,7 @@ export class CommandRunnerService {
 			}
 
 			childProcess.kill();
-			this.runningCommands.delete(projectId);
+			this.removeStoppedCommand(projectId, '0');
 
 			return true;
 		} catch (error) {
@@ -106,22 +124,63 @@ export class CommandRunnerService {
 		}
 	}
 
-	getCommandStatus(projectId: number): CommandStatus {
-		if (this.runningCommands.has(projectId)) {
-			this.logger.log('Command is running.');
-			return CommandStatus.RUNNING;
-		} else {
-			this.logger.log('Command is stopped.');
-			return CommandStatus.STOPPED;
+	private removeStoppedCommand(projectId: number, stopReason: string) {
+		this.runningCommands.delete(projectId);
+		this.sessionModel.update({ stopReason, updatedAt: new Date() }, { where: { projectId, stopReason: '' } });
+	}
+
+	async getCommandStatus(projectId: number): Promise<CommandStatus> {
+		try {
+			const childProcess = this.runningCommands.get(projectId);
+
+			if (childProcess) {
+				return CommandStatus.RUNNING;
+			}
+
+			const session = await this.sessionModel.findOne({
+				where: { projectId },
+				order: [['createdAt', 'DESC']]
+			});
+
+			if (!session) {
+				return CommandStatus.STOPPED;
+			}
+
+			return session.stopReason as CommandStatus;
+		} catch (error) {
+			if (isHttpException(error)) {
+				throw error;
+			}
+
+			throw new InternalServerErrorException(`Failed to get command status: ${error.message}`);
 		}
 	}
 
-	getCommandLogs(projectId: number): string[] {
-		if (!this.logs.has(projectId)) {
-			this.logger.log('No logs found for the command.');
-			return [];
-		}
+	async getSessions(projectId: number) {
+		try {
+			const sessions = await this.sessionModel.findAll({ where: { projectId } });
 
-		return this.logs.get(projectId);
+			return sessions;
+		} catch (error) {
+			if (isHttpException(error)) {
+				throw error;
+			}
+
+			throw new InternalServerErrorException(`Failed to get sessions: ${error.message}`);
+		}
+	}
+
+	async getSessionLogs(sessionId: number) {
+		try {
+			const logs = await this.logModel.findAll({ where: { sessionId } });
+
+			return logs;
+		} catch (error) {
+			if (isHttpException(error)) {
+				throw error;
+			}
+
+			throw new InternalServerErrorException(`Failed to get session logs: ${error.message}`);
+		}
 	}
 }

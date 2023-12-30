@@ -3,6 +3,7 @@ import { CommandRunnerService } from './commandRunner.service';
 import { Response } from '@local/shared/types';
 import { CommandStatus } from '@local/shared/enums';
 import { InternalServerErrorException, getValidResponse } from '../utils/getResponse';
+import { Log, Session } from '@local/shared/entities';
 
 @Controller('commandRunner')
 export class CommandRunnerController {
@@ -32,23 +33,34 @@ export class CommandRunnerController {
 
 	@Get('status/:projectId')
 	@HttpCode(HttpStatus.OK)
-	getCommandStatus(@Param('projectId') projectId: number): Response<CommandStatus> {
+	async getCommandStatus(@Param('projectId') projectId: number): Promise<Response<CommandStatus>> {
 		try {
-			const commandStatus = this.commandRunnerService.getCommandStatus(projectId);
+			const commandStatus = await this.commandRunnerService.getCommandStatus(projectId);
 			return getValidResponse<CommandStatus>('Command status retrieved successfully', commandStatus);
 		} catch (error) {
 			throw new InternalServerErrorException('Failed to retrieve command status');
 		}
 	}
 
-	@Get('logs/:projectId')
+	@Get('sessions/:projectId')
 	@HttpCode(HttpStatus.OK)
-	getCommandLogs(@Param('projectId') projectId: number): Response<string[]> {
+	async getSessions(@Param('projectId') projectId: number): Promise<Response<Session[]>> {
 		try {
-			const logs = this.commandRunnerService.getCommandLogs(projectId);
-			return getValidResponse<string[]>('Command logs retrieved successfully', logs);
+			const sessions = await this.commandRunnerService.getSessions(projectId);
+			return getValidResponse('Sessions retrieved successfully', sessions);
 		} catch (error) {
-			throw new InternalServerErrorException('Failed to retrieve command logs');
+			throw new InternalServerErrorException('Failed to retrieve sessions');
+		}
+	}
+
+	@Get('logs/:sessionId')
+	@HttpCode(HttpStatus.OK)
+	async getSessionLogs(@Param('sessionId') sessionId: number): Promise<Response<Log[]>> {
+		try {
+			const logs = await this.commandRunnerService.getSessionLogs(sessionId);
+			return getValidResponse('Logs retrieved successfully', logs);
+		} catch (error) {
+			throw new InternalServerErrorException('Failed to retrieve logs');
 		}
 	}
 }

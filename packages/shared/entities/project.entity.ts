@@ -1,5 +1,5 @@
-import { Model, Table, Column, DataType } from 'sequelize-typescript';
-
+import { Model, Table, Column, DataType, HasMany } from 'sequelize-typescript';
+import { Session } from './session.entity';
 @Table({
 	tableName: 'project'
 })
@@ -33,4 +33,7 @@ export class Project extends Model<Project> {
 		allowNull: false
 	})
 	autoStart: boolean;
+
+	@HasMany(() => Session, { foreignKey: 'projectId' })
+	sessions: Session[];
 }

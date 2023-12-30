@@ -1,6 +1,7 @@
 enum CommandStatus {
 	RUNNING = 'RUNNING',
-	STOPPED = 'STOPPED'
+	STOPPED = 'STOPPED',
+	CRASHED = 'CRASHED'
 }
 
 export default CommandStatus;
