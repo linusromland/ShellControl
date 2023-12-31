@@ -22,9 +22,9 @@ export class CommandRunnerController {
 
 	@Delete('stop/:projectId')
 	@HttpCode(HttpStatus.OK)
-	stopCommand(@Param('projectId') projectId: number): Response<void> {
+	async stopCommand(@Param('projectId') projectId: number): Promise<Response<void>> {
 		try {
-			this.commandRunnerService.stopCommand(projectId);
+			await this.commandRunnerService.stopCommand(projectId);
 			return getValidResponse('Command stopped successfully');
 		} catch (error) {
 			throw new InternalServerErrorException('Failed to stop command');
