@@ -18,7 +18,7 @@ export default function Sidebar(): JSX.Element {
 	const [resizing, setResizing] = useState(false);
 	const [showCreateProject, setShowCreateProject] = useState(false);
 
-	const { projects, projectStatuses, fetchProjects } = useProjects();
+	const { projects, fetchProjects } = useProjects();
 	const { theme } = useTheme();
 	const sidebarRef = useRef<HTMLDivElement>(null);
 	const navigate = useNavigate();
@@ -85,46 +85,50 @@ export default function Sidebar(): JSX.Element {
 				</div>
 
 				<Divider />
+				{projects.length !== 0 && (
+					<>
+						<div className={style.projects}>
+							{projects.map((project) => {
+								const isActiveProject = project.id.toString() === id;
 
-				<div className={style.projects}>
-					{projects.map((project) => {
-						const isActiveProject = project.id.toString() === id;
-
-						return (
-							<Tooltip
-								content={project.name}
-								key={project.id}
-								isDisabled={!collapsed}
-								placement='right'
-								showArrow
-							>
-								<div
-									className={`${style.project} ${
-										isActiveProject && !collapsed ? style.activeProject : ''
-									}`}
-									onClick={() => navigate(`/project/${project.id}`)}
-								>
-									<Avatar
-										name={project.name}
-										color={isActiveProject ? (collapsed ? 'primary' : 'secondary') : 'default'}
-										key={project.id + isActiveProject}
-									/>
-									{!collapsed && (
-										<div className={style.projectText}>
-											<span>{project.name}</span>
-											<span className={style.status}>
-												Status:{' '}
-												{startCase((projectStatuses[project.id] || 'STOPPED').toLowerCase())}
-											</span>
+								return (
+									<Tooltip
+										content={project.name}
+										key={project.id}
+										isDisabled={!collapsed}
+										placement='right'
+										showArrow
+									>
+										<div
+											className={`${style.project} ${
+												isActiveProject && !collapsed ? style.activeProject : ''
+											}`}
+											onClick={() => navigate(`/project/${project.id}`)}
+										>
+											<Avatar
+												name={project.name}
+												color={
+													isActiveProject ? (collapsed ? 'primary' : 'secondary') : 'default'
+												}
+												key={project.id + isActiveProject}
+											/>
+											{!collapsed && (
+												<div className={style.projectText}>
+													<span>{project.name}</span>
+													<span className={style.status}>
+														Status: {startCase((project.status || 'STOPPED').toLowerCase())}
+													</span>
+												</div>
+											)}
 										</div>
-									)}
-								</div>
-							</Tooltip>
-						);
-					})}
-				</div>
+									</Tooltip>
+								);
+							})}
+						</div>
 
-				<Divider />
+						<Divider />
+					</>
+				)}
 
 				<div className={style.actions}>
 					<Tooltip

@@ -12,6 +12,9 @@ import {
 import { InjectModel } from '@nestjs/sequelize';
 import { Log, Session } from '@local/shared/entities';
 
+type setSessionStatusByProjectId = { projectId: number };
+type setSessionStatusBySessionId = { sessionId: number };
+
 @Injectable()
 export class CommandRunnerService {
 	constructor(
@@ -23,7 +26,10 @@ export class CommandRunnerService {
 
 		@InjectModel(Log)
 		private logModel: typeof Log
-	) {}
+	) {
+		this.verifyRunningSessions();
+		setInterval(() => this.verifyRunningSessions(), 30 * 1000); // 30 seconds
+	}
 
 	private logger = new Logger('CommandRunnerService');
 	private runningCommands: Map<number, ChildProcessWithoutNullStreams> = new Map();
@@ -45,27 +51,32 @@ export class CommandRunnerService {
 				throw new BadRequestException('Command is already running for this project.');
 			}
 
-			const sessions = await this.sessionModel.findAll({ where: { projectId, stopReason: '' } });
+			const sessions = await this.sessionModel.findAll({ where: { projectId, status: CommandStatus.RUNNING } });
 
 			if (sessions.length > 0) {
 				this.logger.log(`Stopping ${sessions.length} running sessions for project ${projectId}`);
 
 				for (const session of sessions) {
 					this.logger.log(`Stopping session ${session.id}`);
-					this.removeStoppedCommand(projectId, '0');
+					this.setSessionStatus({ sessionId: session.id }, CommandStatus.STOPPED);
 				}
 			}
 
+			const updateTime = new Date();
+
 			const session = await this.sessionModel.create({
 				projectId,
-				stopReason: '',
+				status: CommandStatus.RUNNING,
 				createdAt: new Date(),
 				updatedAt: new Date()
 			});
 
 			const subprocess = spawn(command, [], { cwd, shell: true, stdio: 'pipe' });
 			this.runningCommands.set(projectId, subprocess);
-			this.commandRunnerGateway.broadcastToRoom('status', projectId.toString(), CommandStatus.RUNNING);
+			this.commandRunnerGateway.broadcastToRoom('status', projectId.toString(), {
+				status: CommandStatus.RUNNING,
+				updateTime: updateTime
+			});
 
 			const onData = async (data: Buffer) => {
 				const log = await this.logModel.create({
@@ -88,10 +99,9 @@ export class CommandRunnerService {
 			subprocess.on('exit', async (code, signal) => {
 				this.logger.log(`Command exited with code ${code}, signal ${signal}`);
 
-				const stopReason = code === 0 ? CommandStatus.STOPPED : CommandStatus.CRASHED;
+				const status = code === 0 ? CommandStatus.STOPPED : CommandStatus.CRASHED;
 
-				this.commandRunnerGateway.broadcastToRoom('status', projectId.toString(), stopReason);
-				this.removeStoppedCommand(projectId, stopReason);
+				this.setSessionStatus({ sessionId: session.id }, status);
 			});
 		} catch (error) {
 			if (isHttpException(error)) {
@@ -112,7 +122,8 @@ export class CommandRunnerService {
 			}
 
 			childProcess.kill();
-			this.removeStoppedCommand(projectId, '0');
+			this.setSessionStatus({ projectId }, CommandStatus.STOPPED);
+			this.runningCommands.delete(projectId);
 
 			return true;
 		} catch (error) {
@@ -122,11 +133,6 @@ export class CommandRunnerService {
 
 			throw new InternalServerErrorException(`Failed to stop command: ${error.message}`);
 		}
-	}
-
-	private removeStoppedCommand(projectId: number, stopReason: string) {
-		this.runningCommands.delete(projectId);
-		this.sessionModel.update({ stopReason, updatedAt: new Date() }, { where: { projectId, stopReason: '' } });
 	}
 
 	async getCommandStatus(projectId: number): Promise<CommandStatus> {
@@ -142,11 +148,9 @@ export class CommandRunnerService {
 				order: [['createdAt', 'DESC']]
 			});
 
-			if (!session) {
-				return CommandStatus.STOPPED;
-			}
+			throw new NotFoundException('Session not found.');
 
-			return session.stopReason as CommandStatus;
+			return session.status;
 		} catch (error) {
 			if (isHttpException(error)) {
 				throw error;
@@ -181,6 +185,65 @@ export class CommandRunnerService {
 			}
 
 			throw new InternalServerErrorException(`Failed to get session logs: ${error.message}`);
+		}
+	}
+
+	private isProjectId(
+		idObject: setSessionStatusByProjectId | setSessionStatusBySessionId
+	): idObject is setSessionStatusByProjectId {
+		return (idObject as setSessionStatusByProjectId).projectId !== undefined;
+	}
+
+	private async setSessionStatus(
+		idObject: setSessionStatusByProjectId | setSessionStatusBySessionId,
+
+		status: CommandStatus
+	) {
+		const whereQuery = this.isProjectId(idObject) ? { projectId: idObject.projectId } : { id: idObject.sessionId };
+
+		// Find the latest session for this project
+		const latestSession = await this.sessionModel.findOne({
+			where: whereQuery,
+			order: [['createdAt', 'DESC']]
+		});
+
+		if (!latestSession) {
+			this.logger.error('Session not found.');
+			throw new NotFoundException('Session not found.');
+		}
+
+		const updateTime = new Date();
+
+		await this.sessionModel.update(
+			{ status, updatedAt: updateTime },
+			{
+				where: { id: latestSession.id }
+			}
+		);
+
+		this.commandRunnerGateway.broadcastToRoom('status', latestSession.projectId.toString(), {
+			status: status,
+			updateTime: updateTime
+		});
+	}
+
+	private async verifyRunningSessions() {
+		this.logger.log('Verifying running sessions');
+
+		const sessions = await this.sessionModel.findAll({ where: { status: CommandStatus.RUNNING } });
+
+		for (const session of sessions) {
+			const childProcess = this.runningCommands.get(session.projectId);
+
+			if (!childProcess) {
+				this.logger.log(`Session ${session.id} is running but no child process found. Stopping session.`);
+				this.setSessionStatus(
+					{
+						sessionId: session.id
+					},
+					CommandStatus.STOPPED
+				);
+			}
 		}
 	}
 }

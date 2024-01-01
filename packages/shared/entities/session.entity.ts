@@ -1,5 +1,6 @@
 import { Model, Table, Column, DataType, HasMany } from 'sequelize-typescript';
 import { Log } from './log.entity';
+import { CommandStatus } from '../enums';
 
 @Table({
 	tableName: 'session'
@@ -15,7 +16,7 @@ export class Session extends Model<Session> {
 		type: DataType.STRING,
 		allowNull: false
 	})
-	stopReason: string;
+	status: CommandStatus;
 
 	@HasMany(() => Log, { foreignKey: 'sessionId' })
 	logs: Log[];

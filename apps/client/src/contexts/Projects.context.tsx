@@ -1,10 +1,10 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { Project } from '@local/shared/entities';
+import { useSocket } from '../hooks/useSocket';
 import { fetchUtil } from '../utils/fetch.util';
 
 interface ProjectsContextProps {
 	projects: Project[];
-	projectStatuses: Record<number, string>;
 	fetchProjects: () => void;
 }
 
@@ -23,7 +23,38 @@ export const useProjects = (): ProjectsContextProps => {
 
 export const ProjectsProvider = ({ children }: { children: ReactNode }): JSX.Element => {
 	const [projects, setProjects] = useState<Project[]>([]);
-	const [projectStatuses, setProjectStatuses] = useState<Record<number, string>>({});
+
+	useSocket({
+		roomId: 'status',
+		event: '*',
+		onEvent: (
+			projectId,
+			data: {
+				status: string;
+				updatedAt: string;
+			}
+		) => {
+			// Find the project by the id
+			const project = projects.find((p) => p.id.toString() === projectId);
+
+			// If the project doesn't exist, return
+			if (!project) return;
+
+			// Check if the status is the same as the current status
+			if (project.status === data.status) return;
+
+			// Check if the updateAt in data.updatedAt is newer than the one in project.updatedAt
+			if (new Date(data.updatedAt) < new Date(project.updatedAt)) return;
+
+			console.log(`Project ${projectId} status changed to ${data.status}`);
+
+			const updatedProjects = projects.map((project) =>
+				project.id.toString() === projectId ? { ...project, status: data.status } : project
+			);
+
+			setProjects(updatedProjects as Project[]);
+		}
+	});
 
 	const fetchProjects = async (): Promise<void> => {
 		const response = await fetchUtil<Project[]>('project', {
@@ -33,31 +64,7 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }): JSX.Ele
 		if (!response.success) throw new Error(response.message);
 
 		setProjects(response.data || []);
-
-		const getStatusPromises = response.data?.map((project) => getProjectStatus(project.id));
-		await Promise.all(getStatusPromises || []);
 	};
 
-	// TODO: ADD WS SOCKETIO THING HERE FOR THE PROJECT STATUSES
-
-	const getProjectStatus = async (projectId: number) => {
-		const response = await fetchUtil<string>(`commandRunner/status/${projectId}`, {
-			method: 'GET'
-		});
-
-		if (!response.success) throw new Error(response.message);
-
-		const status = response.data || 'STOPPED';
-
-		setProjectStatuses((prev) => ({
-			...prev,
-			[projectId]: status
-		}));
-	};
-
-	return (
-		<ProjectsContext.Provider value={{ projects, projectStatuses, fetchProjects }}>
-			{children}
-		</ProjectsContext.Provider>
-	);
+	return <ProjectsContext.Provider value={{ projects, fetchProjects }}>{children}</ProjectsContext.Provider>;
 };

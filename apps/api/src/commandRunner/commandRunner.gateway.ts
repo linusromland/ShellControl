@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: true })
 export class CommandRunnerGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	private logger: Logger = new Logger('CommandRunnerGateway');
 

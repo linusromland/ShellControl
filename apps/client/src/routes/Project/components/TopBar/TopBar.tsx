@@ -7,6 +7,7 @@ import { Project } from '@local/shared/entities';
 import { useProjects } from '../../../../contexts/Projects.context';
 import { fetchUtil } from '../../../../utils/fetch.util';
 import style from './TopBar.module.css';
+import { startCase } from 'lodash';
 
 type TopBarProps = {
 	project: Project;
@@ -16,13 +17,14 @@ export default function TopBar({ project }: TopBarProps) {
 	const { name, description, createdAt, id } = project;
 	const [buttonLoading, setButtonLoading] = useState('');
 
-	const { projectStatuses } = useProjects();
-	const projectStatus = projectStatuses[parseInt(id)];
+	const { projects } = useProjects();
+	const projectStatus = projects.find((p) => p.id === id)?.status || 'STOPPED';
 
 	const handleStartStop = useCallback(
 		async (action: 'start' | 'stop') => {
+			const method = action === 'start' ? 'POST' : 'DELETE';
 			const response = await fetchUtil(`commandRunner/${action}/${id}`, {
-				method: 'POST'
+				method
 			});
 
 			console.log(response);
@@ -52,7 +54,7 @@ export default function TopBar({ project }: TopBarProps) {
 			<div className={style.title}>
 				<h1>{name}</h1>
 				<p>{description}</p>
-				<p>Status: {projectStatus}</p>
+				<p>Status: {startCase(projectStatus.toLowerCase())}</p>
 				<p>Created: {createdAt}</p>
 			</div>
 			<ButtonGroup>
