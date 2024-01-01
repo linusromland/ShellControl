@@ -11,6 +11,7 @@ import {
 } from '../utils/getResponse';
 import { InjectModel } from '@nestjs/sequelize';
 import { Log, Session } from '@local/shared/entities';
+import killProcess from 'src/utils/killProcess';
 
 type setSessionStatusByProjectId = { projectId: number };
 type setSessionStatusBySessionId = { sessionId: number };
@@ -72,6 +73,7 @@ export class CommandRunnerService {
 			});
 
 			const subprocess = spawn(command, [], { cwd, shell: true, stdio: 'pipe' });
+			this.logger.log(`Command started with PID ${subprocess.pid}`);
 			this.runningCommands.set(projectId, subprocess);
 			this.commandRunnerGateway.broadcastToRoom('status', projectId.toString(), {
 				status: CommandStatus.RUNNING,
@@ -97,7 +99,15 @@ export class CommandRunnerService {
 			});
 
 			subprocess.on('exit', async (code, signal) => {
-				this.logger.log(`Command exited with code ${code}, signal ${signal}`);
+				if (!code) {
+					this.logger.log(`Command exited with signal ${signal}`);
+
+					this.setSessionStatus({ sessionId: session.id }, CommandStatus.STOPPED);
+
+					return;
+				}
+
+				this.logger.log(`Command exited with code ${code}`);
 
 				const status = code === 0 ? CommandStatus.STOPPED : CommandStatus.CRASHED;
 
@@ -121,11 +131,17 @@ export class CommandRunnerService {
 				throw new NotFoundException('Command not found for this project.');
 			}
 
-			childProcess.kill();
-			this.setSessionStatus({ projectId }, CommandStatus.STOPPED);
-			this.runningCommands.delete(projectId);
+			// Overwrite the exit listener to prevent the session from being marked as crashed
+			childProcess.removeAllListeners('exit');
 
-			return true;
+			if (await killProcess(childProcess.pid)) {
+				this.setSessionStatus({ projectId }, CommandStatus.STOPPED);
+				this.runningCommands.delete(projectId);
+
+				return true;
+			} else {
+				return false;
+			}
 		} catch (error) {
 			if (isHttpException(error)) {
 				throw error;
