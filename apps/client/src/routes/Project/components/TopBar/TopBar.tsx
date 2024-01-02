@@ -38,6 +38,12 @@ export default function TopBar({ project }: TopBarProps) {
 	}, [handleStartStop]);
 
 	const handleStartStopButton = useCallback(async () => {
+		// window.ipcRenderer.sendSync('sendNotification', 'Hello!', 'This is a notification!', 'tjotjoSvante');
+
+		// window.ipcRenderer.on('notificationClicked', (event, title, body) => {
+		// 	console.log(title, body);
+		// });
+
 		setButtonLoading('start-stop');
 		await handleStartStop(projectStatus === 'STOPPED' ? 'start' : 'stop');
 		setButtonLoading('');

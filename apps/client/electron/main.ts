@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, Notification } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
 
@@ -14,7 +14,9 @@ function createWindow() {
 		webPreferences: {
 			preload: path.join(__dirname, 'preload.js')
 		},
-		autoHideMenuBar: true
+		autoHideMenuBar: true,
+		width: 1024,
+		height: 768
 	});
 
 	win.webContents.on('before-input-event', (_, input) => {
@@ -55,6 +57,23 @@ function createWindow() {
 		event.returnValue = path.dirname(filePath);
 	});
 
+	ipcMain.on('sendNotification', (event, title: string, body: string, notificationId: string) => {
+		try {
+			const notification = new Notification({
+				title,
+				body
+			});
+
+			notification.on('click', () => {
+				win?.webContents.send('notificationClicked', notificationId);
+			});
+
+			notification.show();
+		} catch (error) {
+			console.log(error);
+		}
+	});
+
 	if (VITE_DEV_SERVER_URL) {
 		win.loadURL(VITE_DEV_SERVER_URL);
 	} else {
@@ -74,5 +93,7 @@ app.on('activate', () => {
 		createWindow();
 	}
 });
+
+app.setAppUserModelId(process.execPath);
 
 app.whenReady().then(createWindow);
