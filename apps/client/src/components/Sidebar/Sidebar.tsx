@@ -10,8 +10,7 @@ import { useTheme } from '../../contexts/Theme.context';
 import style from './Sidebar.module.css';
 
 export default function Sidebar(): JSX.Element {
-	// TODO: FIX THESE WITH ACTUAL VALUES
-	const version = '1.0.0';
+	const version = window.ipcRenderer.sendSync('getVersion');
 
 	const [collapsed, setCollapsed] = useState(false);
 	const [width, setWidth] = useState(250);

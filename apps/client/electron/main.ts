@@ -74,6 +74,10 @@ function createWindow() {
 		}
 	});
 
+	ipcMain.on('getVersion', (event) => {
+		event.returnValue = app.getVersion();
+	});
+
 	if (VITE_DEV_SERVER_URL) {
 		win.loadURL(VITE_DEV_SERVER_URL);
 	} else {
