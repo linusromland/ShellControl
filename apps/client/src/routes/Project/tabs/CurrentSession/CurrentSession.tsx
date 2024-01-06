@@ -33,14 +33,19 @@ const CurrentSession = ({ session, isStopped }: CurrentSessionProps) => {
 		})();
 	}, [session, isStopped]);
 
-	useSocket({
-		roomId: session?.id,
-		event: '*',
-		onEvent: (_, data: Log) => {
-			console.log(data);
+	const { connect, disconnect } = useSocket<Log>({
+		roomId: session?.id?.toString(),
+		event: 'log',
+		onEvent: (_, data) => {
 			setLogs((logs) => [...logs, data]);
 		}
 	});
+
+	useEffect(() => {
+		if (session && !isStopped) connect();
+		return () => disconnect();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [session, isStopped]);
 
 	return (
 		<>

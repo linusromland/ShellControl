@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Project } from '@local/shared/entities';
 import { useSocket } from '../hooks/useSocket';
 import { fetchUtil } from '../utils/fetch.util';
@@ -24,37 +24,44 @@ export const useProjects = (): ProjectsContextProps => {
 export const ProjectsProvider = ({ children }: { children: ReactNode }): JSX.Element => {
 	const [projects, setProjects] = useState<(Project & { status?: string })[]>([]);
 
-	useSocket({
+	const handleStatusUpdate = (projectId: string, data: { status: string; updatedAt: string }) => {
+		// Find the project by the id
+		const project = projects.find((p) => p.id.toString() === projectId);
+
+		console.log('Found project:', project);
+
+		// If the project doesn't exist, return
+		if (!project) return;
+
+		// Check if the status is the same as the current status
+		if (project.status === data.status) return;
+
+		// Check if the updateAt in data.updatedAt is newer than the one in project.updatedAt
+		if (new Date(data.updatedAt) < new Date(project.updatedAt)) return;
+
+		console.log(`Project ${projectId} status changed to ${data.status}`);
+
+		const updatedProjects = projects.map((project) =>
+			project.id.toString() === projectId ? { ...project, status: data.status } : project
+		);
+
+		setProjects(updatedProjects as (Project & { status?: string })[]);
+	};
+
+	const { connect, disconnect } = useSocket<{
+		status: string;
+		updatedAt: string;
+	}>({
 		roomId: 'status',
 		event: '*',
-		onEvent: (
-			projectId,
-			data: {
-				status: string;
-				updatedAt: string;
-			}
-		) => {
-			// Find the project by the id
-			const project = projects.find((p) => p.id.toString() === projectId);
-
-			// If the project doesn't exist, return
-			if (!project) return;
-
-			// Check if the status is the same as the current status
-			if (project.status === data.status) return;
-
-			// Check if the updateAt in data.updatedAt is newer than the one in project.updatedAt
-			if (new Date(data.updatedAt) < new Date(project.updatedAt)) return;
-
-			console.log(`Project ${projectId} status changed to ${data.status}`);
-
-			const updatedProjects = projects.map((project) =>
-				project.id.toString() === projectId ? { ...project, status: data.status } : project
-			);
-
-			setProjects(updatedProjects as (Project & { status?: string })[]);
-		}
+		onEvent: handleStatusUpdate
 	});
+
+	useEffect(() => {
+		connect();
+		return () => disconnect();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [projects]);
 
 	const fetchProjects = async (): Promise<void> => {
 		const response = await fetchUtil<Project[]>('project', {

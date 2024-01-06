@@ -1,43 +1,67 @@
-import { useEffect } from 'react';
-import io from 'socket.io-client';
+import io, { Socket } from 'socket.io-client';
 import Storage, { StorageConfigKey } from '../utils/storage.util';
 
-interface UseSocketProps {
+interface UseSocketProps<T> {
 	roomId: string;
 	event: string;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any -- this is a generic
-	onEvent: (event: string, data: any) => void;
+	onEvent: (event: string, data: T) => void;
 }
 
-const useSocket = ({ roomId, event, onEvent }: UseSocketProps): void => {
-	useEffect(() => {
-		const storage = new Storage();
-		const API_URL = storage.get(StorageConfigKey.API_URL);
+interface SocketFunctions {
+	connect: () => void;
+	disconnect: () => void;
+}
 
-		if (!API_URL) return;
+function useSocket<T>({ roomId, event, onEvent }: UseSocketProps<T>): SocketFunctions {
+	const storage = new Storage();
+	const API_URL = storage.get(StorageConfigKey.API_URL);
+	let socket: Socket | null = null;
 
-		const socket = io(API_URL);
-
-		socket.emit('joinRoom', roomId);
-		console.log(`Joined room ${roomId}`);
-
-		if (event === '*') {
-			console.log(`Listening for all events on room ${roomId}`);
-			socket.onAny(onEvent);
-			return () => {
-				socket.disconnect();
-				socket.offAny(onEvent);
-			};
-		} else {
-			console.log(`Listening for ${event} on room ${roomId}`);
-			socket.on(event, onEvent);
-			return () => {
-				console.log(`Stopped listening for ${event} on room ${roomId}`);
-				socket.disconnect();
-				socket.off(event, onEvent);
-			};
+	const connect = (): void => {
+		if (!API_URL) {
+			throw new Error('API_URL not found in storage');
 		}
-	}, [event, onEvent, roomId]);
-};
+
+		socket = io(API_URL);
+		joinRoom();
+		setupEventListeners();
+	};
+
+	const joinRoom = (): void => {
+		if (socket) {
+			socket.emit('joinRoom', roomId);
+			console.log(`Joined room ${roomId}`);
+		}
+	};
+
+	const setupEventListeners = (): void => {
+		if (socket) {
+			if (event === '*') {
+				console.log(`Listening for all events on room ${roomId}`);
+				socket.onAny(onEvent);
+			} else {
+				console.log(`Listening for ${event} on room ${roomId}`);
+				socket.on(event, (data) => onEvent(event, data as T));
+			}
+		}
+	};
+
+	const disconnect = (): void => {
+		if (socket) {
+			socket.disconnect();
+
+			if (event === '*') {
+				socket.offAny();
+			} else {
+				socket.off(event);
+			}
+
+			console.log(`Disconnected from room ${roomId}`);
+			socket = null;
+		}
+	};
+
+	return { connect, disconnect };
+}
 
 export { useSocket };
