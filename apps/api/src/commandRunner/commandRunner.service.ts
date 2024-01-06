@@ -164,7 +164,7 @@ export class CommandRunnerService {
 				order: [['createdAt', 'DESC']]
 			});
 
-			throw new NotFoundException('Session not found.');
+			if (!session) new NotFoundException('Session not found.');
 
 			return session.status;
 		} catch (error) {
