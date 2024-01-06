@@ -4,7 +4,7 @@ import { useSocket } from '../hooks/useSocket';
 import { fetchUtil } from '../utils/fetch.util';
 
 interface ProjectsContextProps {
-	projects: Project[];
+	projects: (Project & { status?: string })[];
 	fetchProjects: () => void;
 }
 
@@ -22,7 +22,7 @@ export const useProjects = (): ProjectsContextProps => {
 };
 
 export const ProjectsProvider = ({ children }: { children: ReactNode }): JSX.Element => {
-	const [projects, setProjects] = useState<Project[]>([]);
+	const [projects, setProjects] = useState<(Project & { status?: string })[]>([]);
 
 	useSocket({
 		roomId: 'status',
@@ -52,7 +52,7 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }): JSX.Ele
 				project.id.toString() === projectId ? { ...project, status: data.status } : project
 			);
 
-			setProjects(updatedProjects as Project[]);
+			setProjects(updatedProjects as (Project & { status?: string })[]);
 		}
 	});
 
@@ -63,7 +63,19 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }): JSX.Ele
 
 		if (!response.success) throw new Error(response.message);
 
-		setProjects(response.data || []);
+		const promises = (response.data || []).map(async (project) => {
+			const statusResponse = await fetchUtil<string>(`commandRunner/status/${project.id}`, {
+				method: 'GET'
+			});
+
+			if (!statusResponse.success) throw new Error(statusResponse.message);
+
+			return { ...project, status: statusResponse.data };
+		});
+
+		const retrievedProjects = await Promise.all(promises);
+
+		setProjects((retrievedProjects ?? []) as (Project & { status?: string })[]);
 	};
 
 	return <ProjectsContext.Provider value={{ projects, fetchProjects }}>{children}</ProjectsContext.Provider>;
