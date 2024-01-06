@@ -88,7 +88,7 @@ export class CommandRunnerService {
 					updatedAt: new Date()
 				});
 
-				this.commandRunnerGateway.broadcastToRoom(`${projectId}`, 'log', log);
+				this.commandRunnerGateway.broadcastToRoom(session.id?.toString(), 'log', log);
 			};
 
 			subprocess.stdout.on('data', onData);

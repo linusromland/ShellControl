@@ -32,6 +32,7 @@ const useSocket = ({ roomId, event, onEvent }: UseSocketProps): void => {
 			console.log(`Listening for ${event} on room ${roomId}`);
 			socket.on(event, onEvent);
 			return () => {
+				console.log(`Stopped listening for ${event} on room ${roomId}`);
 				socket.disconnect();
 				socket.off(event, onEvent);
 			};

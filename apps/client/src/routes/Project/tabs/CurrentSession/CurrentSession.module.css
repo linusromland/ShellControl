@@ -1,3 +1,13 @@
 .text {
 	font-size: 1.2em;
 }
+
+.logWrapper {
+	display: flex;
+	flex-direction: column;
+}
+
+.logs {
+	font-size: 0.8em;
+	overflow-y: scroll;
+}
