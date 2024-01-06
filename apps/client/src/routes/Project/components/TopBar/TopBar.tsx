@@ -11,9 +11,10 @@ import { startCase } from 'lodash';
 
 type TopBarProps = {
 	project: Project;
+	isStopped: boolean;
 };
 
-export default function TopBar({ project }: TopBarProps) {
+export default function TopBar({ project, isStopped }: TopBarProps) {
 	const { name, description, createdAt, id } = project;
 	const [buttonLoading, setButtonLoading] = useState('');
 
@@ -23,11 +24,9 @@ export default function TopBar({ project }: TopBarProps) {
 	const handleStartStop = useCallback(
 		async (action: 'start' | 'stop') => {
 			const method = action === 'start' ? 'POST' : 'DELETE';
-			const response = await fetchUtil(`commandRunner/${action}/${id}`, {
+			await fetchUtil(`commandRunner/${action}/${id}`, {
 				method
 			});
-
-			console.log(response);
 		},
 		[id]
 	);
@@ -38,16 +37,10 @@ export default function TopBar({ project }: TopBarProps) {
 	}, [handleStartStop]);
 
 	const handleStartStopButton = useCallback(async () => {
-		// window.ipcRenderer.sendSync('sendNotification', 'Hello!', 'This is a notification!', 'tjotjoSvante');
-
-		// window.ipcRenderer.on('notificationClicked', (event, title, body) => {
-		// 	console.log(title, body);
-		// });
-
 		setButtonLoading('start-stop');
-		await handleStartStop(projectStatus === 'STOPPED' ? 'start' : 'stop');
+		await handleStartStop(isStopped ? 'start' : 'stop');
 		setButtonLoading('');
-	}, [handleStartStop, projectStatus]);
+	}, [handleStartStop, isStopped]);
 
 	const handleRestartButton = useCallback(async () => {
 		setButtonLoading('restart');
@@ -66,18 +59,18 @@ export default function TopBar({ project }: TopBarProps) {
 			<ButtonGroup>
 				<Button
 					color='primary'
-					startContent={projectStatus === 'STOPPED' ? <PlayCircleFilledWhiteIcon /> : <StopCircleIcon />}
+					startContent={isStopped ? <PlayCircleFilledWhiteIcon /> : <StopCircleIcon />}
 					onClick={handleStartStopButton}
 					isLoading={buttonLoading === 'start-stop'}
 				>
-					{projectStatus === 'STOPPED' ? 'Start' : 'Stop'}
+					{isStopped ? 'Start' : 'Stop'}
 				</Button>
 				<Button
 					color={'primary'}
 					startContent={<RestartAltIcon />}
 					onClick={handleRestartButton}
 					isLoading={buttonLoading === 'restart'}
-					isDisabled={projectStatus === 'STOPPED'}
+					isDisabled={isStopped}
 				>
 					Restart
 				</Button>
