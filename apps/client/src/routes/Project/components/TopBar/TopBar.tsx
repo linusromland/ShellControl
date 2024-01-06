@@ -1,4 +1,6 @@
 import { useCallback, useState } from 'react';
+import { startCase } from 'lodash';
+import dayjs from 'dayjs';
 import { Button, ButtonGroup } from '@nextui-org/react';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
@@ -7,7 +9,6 @@ import { Project } from '@local/shared/entities';
 import { useProjects } from '../../../../contexts/Projects.context';
 import { fetchUtil } from '../../../../utils/fetch.util';
 import style from './TopBar.module.css';
-import { startCase } from 'lodash';
 
 type TopBarProps = {
 	project: Project;
@@ -54,7 +55,7 @@ export default function TopBar({ project, isStopped }: TopBarProps) {
 				<h1>{name}</h1>
 				<p>{description}</p>
 				<p>Status: {startCase(projectStatus.toLowerCase())}</p>
-				<p>Created: {createdAt}</p>
+				<p>Created: {dayjs(createdAt).format('YYYY-MM-DD HH:mm')}</p>
 			</div>
 			<ButtonGroup>
 				<Button

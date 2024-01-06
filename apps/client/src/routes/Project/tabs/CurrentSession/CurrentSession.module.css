@@ -5,9 +5,13 @@
 .logWrapper {
 	display: flex;
 	flex-direction: column;
+	height: 100%;
 }
 
 .logs {
 	font-size: 0.8em;
-	overflow-y: scroll;
+	overflow-y: auto;
+	scroll-behavior: smooth;
+	height: calc(100vh - 8.75rem);
+	box-sizing: border-box;
 }

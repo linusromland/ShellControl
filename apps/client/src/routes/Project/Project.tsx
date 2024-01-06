@@ -46,7 +46,7 @@ const Project: React.FC = () => {
 	if (!project) return;
 
 	return (
-		<div>
+		<div className={style.container}>
 			<TopBar
 				project={project}
 				isStopped={isStopped && !currentSession}
@@ -54,6 +54,7 @@ const Project: React.FC = () => {
 			<Divider />
 			<Tabs className={style.tabs}>
 				<Tab
+					className={style.tab}
 					title='Current session'
 					key='currentSession'
 				>
@@ -63,12 +64,14 @@ const Project: React.FC = () => {
 					/>
 				</Tab>
 				<Tab
+					className={style.tab}
 					title='Previous sessions'
 					key='previousSessions'
 				>
 					Previous sessions
 				</Tab>
 				<Tab
+					className={style.tab}
 					title='Settings'
 					key='settings'
 				>
