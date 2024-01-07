@@ -1,0 +1,17 @@
+.text {
+	font-size: 1.2em;
+}
+
+.logWrapper {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.logs {
+	font-size: 0.8em;
+	overflow-y: auto;
+	scroll-behavior: smooth;
+	height: calc(100vh - 9rem);
+	box-sizing: border-box;
+}

@@ -1,10 +1,11 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Spinner } from '@nextui-org/spinner';
 import { Log, Session } from '@local/shared/entities';
 import { useTheme } from '../../../../contexts/Theme.context';
 import { useSocket } from '../../../../hooks/useSocket';
 import { fetchUtil } from '../../../../utils/fetch.util';
 import style from './CurrentSession.module.css';
+import Logs from '../../../../components/Logs/Logs';
 
 type CurrentSessionProps = {
 	session?: Omit<Session, 'logs'>;
@@ -13,20 +14,9 @@ type CurrentSessionProps = {
 
 const CurrentSession = ({ session, isStopped }: CurrentSessionProps) => {
 	const { theme } = useTheme();
-	const logWrapperRef = useRef<HTMLDivElement>(null);
 
 	const [logs, setLogs] = useState<Log[]>([]);
 	const [isFetching, setIsFetching] = useState(false);
-
-	useEffect(() => {
-		if (logWrapperRef.current) {
-			const { scrollHeight, clientHeight, scrollTop } = logWrapperRef.current;
-
-			if (scrollHeight - clientHeight <= scrollTop + 100) {
-				logWrapperRef.current.scrollTop = scrollHeight;
-			}
-		}
-	}, [logs]);
 
 	useEffect(() => {
 		(async () => {
@@ -74,24 +64,7 @@ const CurrentSession = ({ session, isStopped }: CurrentSessionProps) => {
 			) : (
 				<div className={style.logWrapper}>
 					{isFetching && <Spinner />}
-
-					{!isFetching && session && (
-						<>
-							<div
-								className={style.logs}
-								ref={logWrapperRef}
-							>
-								{logs.map((log) => (
-									<p
-										key={log.id}
-										className={style.text}
-									>
-										{log.message}
-									</p>
-								))}
-							</div>
-						</>
-					)}
+					{!isFetching && session && <Logs logs={logs} />}
 				</div>
 			)}
 		</>
