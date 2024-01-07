@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Tabs, Tab, Divider } from '@nextui-org/react';
+import { Session } from '@local/shared/entities';
 import { useProjects } from '../../contexts/Projects.context';
 import TopBar from './components/TopBar/TopBar';
 import CurrentSession from './tabs/CurrentSession/CurrentSession';
+import PreviousSessions from './tabs/PreviousSessions/PreviousSessions';
 import { fetchUtil } from '../../utils/fetch.util';
 import style from './Project.module.css';
-import { Session } from '@local/shared/entities';
 
 const Project: React.FC = () => {
 	const { projects } = useProjects();
@@ -68,7 +69,7 @@ const Project: React.FC = () => {
 					title='Previous sessions'
 					key='previousSessions'
 				>
-					Previous sessions
+					<PreviousSessions sessions={sessions} />
 				</Tab>
 				<Tab
 					className={style.tab}
