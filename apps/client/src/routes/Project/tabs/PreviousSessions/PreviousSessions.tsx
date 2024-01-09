@@ -16,7 +16,7 @@ const PreviousSessions = ({ sessions }: PreviousSessionsProps) => {
 	if (activeSession) {
 		return (
 			<>
-				<p>
+				<p style={{ color: theme === 'dark' ? '#fff' : '#000' }}>
 					<span
 						className={style.back}
 						onClick={() => setActiveSession(undefined)}
