@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { Session } from '@local/shared/entities';
+import { useEffect, useState } from 'react';
+import { Log, Session } from '@local/shared/entities';
 import { useTheme } from '../../../../contexts/Theme.context';
 import style from './PreviousSessions.module.css';
 import Logs from '../../../../components/Logs/Logs';
+import { fetchUtil } from '../../../../utils/fetch.util';
 
 type PreviousSessionsProps = {
 	sessions: Omit<Session, 'logs'>[];
@@ -12,6 +13,20 @@ const PreviousSessions = ({ sessions }: PreviousSessionsProps) => {
 	const { theme } = useTheme();
 
 	const [activeSession, setActiveSession] = useState<Omit<Session, 'logs'>>();
+	const [logs, setLogs] = useState<Log[]>([]);
+
+	const fetchLogs = async (sessionId: string) => {
+		const res = await fetchUtil<Log[]>(`commandRunner/logs/${sessionId}`, { method: 'GET' });
+		if (res.success && res.data) {
+			setLogs(res.data);
+		}
+	};
+
+	useEffect(() => {
+		if (activeSession) {
+			fetchLogs(activeSession.id);
+		}
+	}, [activeSession]);
 
 	if (activeSession) {
 		return (
@@ -25,7 +40,7 @@ const PreviousSessions = ({ sessions }: PreviousSessionsProps) => {
 					</span>
 					{activeSession.createdAt}
 				</p>
-				<Logs logs={[]} />
+				<Logs logs={logs} />
 			</>
 		);
 	}
