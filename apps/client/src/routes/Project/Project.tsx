@@ -8,6 +8,7 @@ import CurrentSession from './tabs/CurrentSession/CurrentSession';
 import PreviousSessions from './tabs/PreviousSessions/PreviousSessions';
 import { fetchUtil } from '../../utils/fetch.util';
 import style from './Project.module.css';
+import Settings from './tabs/Settings/Settings';
 
 const Project: React.FC = () => {
 	const { projects } = useProjects();
@@ -76,7 +77,10 @@ const Project: React.FC = () => {
 					title='Settings'
 					key='settings'
 				>
-					Settings
+					<Settings
+						projectId={id ?? ''}
+						isStopped={isStopped && !currentSession}
+					/>
 				</Tab>
 			</Tabs>
 		</div>
