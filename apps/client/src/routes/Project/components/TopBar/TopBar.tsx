@@ -9,6 +9,7 @@ import { Project } from '@local/shared/entities';
 import { useProjects } from '../../../../contexts/Projects.context';
 import { fetchUtil } from '../../../../utils/fetch.util';
 import style from './TopBar.module.css';
+import { useTheme } from '../../../../contexts/Theme.context';
 
 type TopBarProps = {
 	project: Project;
@@ -16,6 +17,7 @@ type TopBarProps = {
 };
 
 export default function TopBar({ project, isStopped }: TopBarProps) {
+	const { theme } = useTheme();
 	const { name, description, createdAt, id } = project;
 	const [buttonLoading, setButtonLoading] = useState('');
 
@@ -50,7 +52,7 @@ export default function TopBar({ project, isStopped }: TopBarProps) {
 	}, [handleRestart]);
 
 	return (
-		<div className={style.header}>
+		<div className={style[`container-${theme}`]}>
 			<div className={style.title}>
 				<h1>{name}</h1>
 				<p>{description}</p>

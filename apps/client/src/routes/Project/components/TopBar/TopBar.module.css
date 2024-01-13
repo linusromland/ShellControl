@@ -1,10 +1,19 @@
-.header {
+.container-light {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	padding: 1rem;
-	background-color: #fff;
 	height: 5.5rem;
+	color: #000;
+}
+
+.container-dark {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem;
+	height: 5.5rem;
+	color: #fff;
 }
 
 .title {
