@@ -1,5 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
+import {
+	BreadcrumbItem,
+	Breadcrumbs,
+	Table,
+	TableBody,
+	TableCell,
+	TableColumn,
+	TableHeader,
+	TableRow
+} from '@nextui-org/react';
 import dayjs from 'dayjs';
 import { Log, Session } from '@local/shared/entities';
 import { useTheme } from '../../../../contexts/Theme.context';
@@ -34,10 +43,11 @@ const PreviousSessions = ({ sessions }: PreviousSessionsProps) => {
 	if (activeSession) {
 		return (
 			<>
-				<p style={{ color: theme === 'dark' ? '#fff' : '#000' }}>
-					<span onClick={() => setActiveSession(undefined)}>← Back</span>
-					{activeSession.createdAt}
-				</p>
+				<Breadcrumbs variant='solid'>
+					<BreadcrumbItem onClick={() => setActiveSession(undefined)}>Sessions</BreadcrumbItem>
+					<BreadcrumbItem>{dayjs(activeSession.createdAt).format('YYYY-MM-DD HH:mm')}</BreadcrumbItem>
+				</Breadcrumbs>
+
 				<Logs logs={logs} />
 			</>
 		);
