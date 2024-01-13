@@ -35,24 +35,25 @@ jobs:
 
             - name: Upload Installers
               if: env.RELEASE_EXISTS == 'no'
-			  uses: actions/upload-artifact@v2
-			  with:
-				name: installer
-				path: |
-				  apps/client/release/${{ env.VERSION }}/*setup*
-	  
-			- name: Create GitHub Release
-			  if: env.RELEASE_EXISTS == 'no'
-			  uses: actions/create-release@v1
-			  env:
-				GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-			  with:
-				tag_name: ${{ env.VERSION }}
-				release_name: ${{ env.VERSION }}
-				draft: false
-				prerelease: false
-				files: |
-				  apps/client/release/${{ env.VERSION }}/*setup*
+              uses: actions/upload-artifact@v2
+              with:
+                  name: installer
+                  path: |
+                      apps/client/release/${{ env.VERSION }}/*setup*
+
+            - name: Create GitHub Release
+              if: env.RELEASE_EXISTS == 'no'
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ env.VERSION }}
+                  release_name: ${{ env.VERSION }}
+                  draft: false
+                  prerelease: false
+                  files: |
+                      apps/client/release/${{ env.VERSION }}/*setup*
+
             - name: Update Release Notes
               if: env.RELEASE_EXISTS == 'no'
               run: |
