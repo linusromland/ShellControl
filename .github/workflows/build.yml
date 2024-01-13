@@ -49,3 +49,5 @@ jobs:
               if: env.RELEASE_EXISTS == 'no'
               run: |
                   gh release upload ${{ env.VERSION }} apps/client/release/*setup*
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
