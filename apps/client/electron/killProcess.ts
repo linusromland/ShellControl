@@ -12,7 +12,7 @@ function killProcess(pid: number): Promise<boolean> {
 			return;
 		}
 
-		exec(command, async (error, stdout, stderr) => {
+		exec(command, async (error, _, stderr) => {
 			if (error) {
 				resolve(false);
 				return;
