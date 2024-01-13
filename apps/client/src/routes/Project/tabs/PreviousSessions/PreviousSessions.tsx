@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
+import dayjs from 'dayjs';
 import { Log, Session } from '@local/shared/entities';
 import { useTheme } from '../../../../contexts/Theme.context';
-import style from './PreviousSessions.module.css';
 import Logs from '../../../../components/Logs/Logs';
 import { fetchUtil } from '../../../../utils/fetch.util';
 
@@ -32,12 +33,7 @@ const PreviousSessions = ({ sessions }: PreviousSessionsProps) => {
 		return (
 			<>
 				<p style={{ color: theme === 'dark' ? '#fff' : '#000' }}>
-					<span
-						className={style.back}
-						onClick={() => setActiveSession(undefined)}
-					>
-						← Back
-					</span>
+					<span onClick={() => setActiveSession(undefined)}>← Back</span>
 					{activeSession.createdAt}
 				</p>
 				<Logs logs={logs} />
@@ -47,25 +43,28 @@ const PreviousSessions = ({ sessions }: PreviousSessionsProps) => {
 
 	return (
 		<>
-			{sessions.length === 0 && (
-				<div className={style.empty}>
-					<p>No previous sessions</p>
-				</div>
-			)}
-
-			{sessions.length > 0 && (
-				<div className={style.sessions}>
+			<Table
+				aria-label='Previous Sessions'
+				selectionMode='single'
+			>
+				<TableHeader>
+					<TableColumn>ID</TableColumn>
+					<TableColumn>STATUS</TableColumn>
+					<TableColumn>CREATED AT</TableColumn>
+				</TableHeader>
+				<TableBody emptyContent='No previous sessions'>
 					{sessions.map((session) => (
-						<div
-							className={style.session}
+						<TableRow
 							key={session.id}
 							onClick={() => setActiveSession(session)}
 						>
-							<p>{session.createdAt}</p>
-						</div>
+							<TableCell>{session.id}</TableCell>
+							<TableCell>{session.status}</TableCell>
+							<TableCell>{dayjs(session.createdAt).format('YYYY-MM-DD HH:mm')}</TableCell>
+						</TableRow>
 					))}
-				</div>
-			)}
+				</TableBody>
+			</Table>
 		</>
 	);
 };

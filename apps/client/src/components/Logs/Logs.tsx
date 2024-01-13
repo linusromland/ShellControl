@@ -1,28 +1,16 @@
-import { useEffect, useRef } from 'react';
 import { Log } from '@local/shared/entities';
 import style from './Logs.module.css';
+import Scrollable from '../Scrollable/Scrollable';
 
 type LogsProps = {
 	logs: Log[];
 };
 
 const Logs = ({ logs }: LogsProps) => {
-	const logWrapperRef = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		if (logWrapperRef.current) {
-			const { scrollHeight, clientHeight, scrollTop } = logWrapperRef.current;
-
-			if (scrollHeight - clientHeight <= scrollTop + 100) {
-				logWrapperRef.current.scrollTop = scrollHeight;
-			}
-		}
-	}, [logs]);
-
 	return (
-		<div
-			className={style.logs}
-			ref={logWrapperRef}
+		<Scrollable
+			height='9rem'
+			autoScroll
 		>
 			{logs.map((log) => (
 				<p
@@ -32,7 +20,7 @@ const Logs = ({ logs }: LogsProps) => {
 					{log.message}
 				</p>
 			))}
-		</div>
+		</Scrollable>
 	);
 };
 
