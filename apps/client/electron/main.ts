@@ -1,12 +1,16 @@
-import { app, BrowserWindow, ipcMain, Notification } from 'electron';
+import { app, BrowserWindow, ipcMain, Notification, Tray, Menu } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
+import childProcess from 'node:child_process';
+import killProcess from './killProcess';
 
 process.env.DIST = path.join(__dirname, '../dist');
 process.env.VITE_PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, '../public');
 
 let win: BrowserWindow | null;
+let tray: Tray | null;
 const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL'];
+let apiProcess: childProcess.ChildProcess | null = null;
 
 function createWindow() {
 	win = new BrowserWindow({
@@ -57,7 +61,7 @@ function createWindow() {
 		event.returnValue = path.dirname(filePath);
 	});
 
-	ipcMain.on('sendNotification', (event, title: string, body: string, notificationId: string) => {
+	ipcMain.on('sendNotification', (_, title: string, body: string, notificationId: string) => {
 		try {
 			const notification = new Notification({
 				title,
@@ -81,16 +85,21 @@ function createWindow() {
 	if (VITE_DEV_SERVER_URL) {
 		win.loadURL(VITE_DEV_SERVER_URL);
 	} else {
+		apiProcess = childProcess.spawn('cd', [path.join(process.env.DIST, '../api'), '&&', 'npm', 'run', 'start'], {
+			shell: true
+		});
 		win.loadFile(path.join(process.env.DIST, 'index.html'));
 	}
-}
 
-app.on('window-all-closed', () => {
-	if (process.platform !== 'darwin') {
-		app.quit();
+	win.on('closed', () => {
 		win = null;
-	}
-});
+	});
+
+	win.on('close', (event) => {
+		event.preventDefault();
+		win?.hide();
+	});
+}
 
 app.on('activate', () => {
 	if (BrowserWindow.getAllWindows().length === 0) {
@@ -101,3 +110,28 @@ app.on('activate', () => {
 app.setAppUserModelId(process.execPath);
 
 app.whenReady().then(createWindow);
+
+app.on('window-all-closed', () => {});
+
+app.on('ready', () => {
+	tray = new Tray(path.join(process.env.VITE_PUBLIC, 'favicon.png'));
+
+	const contextMenu = Menu.buildFromTemplate([
+		{
+			label: 'Show',
+			click: () => {
+				win?.show();
+			}
+		},
+		{
+			label: 'Quit',
+			click: () => {
+				apiProcess && killProcess(apiProcess?.pid as number);
+				process.exit(0);
+			}
+		}
+	]);
+
+	tray.setToolTip('ShellControl');
+	tray.setContextMenu(contextMenu);
+});
