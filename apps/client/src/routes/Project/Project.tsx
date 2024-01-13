@@ -70,7 +70,7 @@ const Project: React.FC = () => {
 					title='Previous sessions'
 					key='previousSessions'
 				>
-					<PreviousSessions sessions={sessions} />
+					<PreviousSessions sessions={sessions.filter((session) => session.status !== 'RUNNING')} />
 				</Tab>
 				<Tab
 					className={style.tab}
