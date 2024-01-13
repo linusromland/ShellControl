@@ -48,28 +48,4 @@ jobs:
             - name: Upload Installers to GitHub Release
               if: env.RELEASE_EXISTS == 'no'
               run: |
-                  UPLOAD_URL=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${{ env.VERSION }}" | jq -r '.upload_url')
-                  UPLOAD_URL="${UPLOAD_URL%\{*}"
-                  echo "Uploading installers to $UPLOAD_URL"
-                  for file in apps/client/release/${{ env.VERSION }}/*setup*; do
-                    echo "Uploading $file"
-                    curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                      -H "Content-Type: $(file -b --mime-type $file)" \
-                      --data-binary @"$file" \
-                      "$UPLOAD_URL?name=$(basename $file)"
-                  done
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-            - name: Update Release Notes
-              if: env.RELEASE_EXISTS == 'no'
-              run: |
-                  VERSION=${{ env.VERSION }}
-                  RELEASE_NOTES=$(awk -v ver="$VERSION" 'BEGIN {RS="## "; FS="\n"} $1 ~ ver {for (i=2; i<=NF; i++) print $i}' CHANGELOG.md)
-                  RELEASE_NOTES_ESCAPED=$(echo "$RELEASE_NOTES" | sed ':a;N;$!ba;s/\n/\\n/g')
-                  RELEASE_URL="https://api.github.com/repos/${{ github.repository }}/releases/tags/v$VERSION"
-                  RELEASE_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" $RELEASE_URL | jq -r .id)
-                  UPDATE_URL="https://api.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID"
-                  curl -s -X PATCH -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Content-Type: application/json" -d "{\"body\": \"$RELEASE_NOTES_ESCAPED\"}" $UPDATE_URL
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  gh-release upload ${{ env.VERSION }} apps/client/release/*setup*
