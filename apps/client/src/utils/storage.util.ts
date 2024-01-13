@@ -17,20 +17,27 @@ export default class Storage {
 		this.init();
 	}
 
-	init() {
+	private generateBaseConfig() {
+		return {
+			[StorageConfigKey.API_URL]: 'http://localhost:3000'
+		};
+	}
+
+	private init() {
 		if (!this.fs.existsSync(this.configPath)) {
-			this.fs.writeFileSync(this.configPath, JSON.stringify({}));
+			console.log('Creating storage file at', this.configPath);
+			this.fs.writeFileSync(this.configPath, JSON.stringify(this.generateBaseConfig()));
 		}
 
 		this.getConfigFromFile();
 	}
 
-	getConfigFromFile() {
+	private getConfigFromFile() {
 		this.config = JSON.parse(this.fs.readFileSync(this.configPath));
 	}
 
 	get(key: keyof StorageConfig) {
-		return this.config[key] ?? undefined;
+		return this.config?.[key] ?? undefined;
 	}
 
 	set(key: keyof StorageConfig, value: StorageConfig[keyof StorageConfig]) {

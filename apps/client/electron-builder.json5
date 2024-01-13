@@ -14,6 +14,10 @@
 		{
 			from: '../api/release',
 			to: 'api/'
+		},
+		{
+			from: '../api/node_modules/sqlite3/build/Release/node_sqlite3.node',
+			to: 'api/node_modules/sqlite3/build/node_sqlite3.node'
 		}
 	],
 	mac: {

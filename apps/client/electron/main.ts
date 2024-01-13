@@ -6,6 +6,7 @@ import killProcess from './killProcess';
 
 process.env.DIST = path.join(__dirname, '../dist');
 process.env.VITE_PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, '../public');
+const dirSeparator = process.platform === 'win32' ? '\\' : '/';
 
 let win: BrowserWindow | null;
 let tray: Tray | null;
@@ -54,7 +55,7 @@ function createWindow() {
 	});
 
 	ipcMain.on('getAppPath', (event) => {
-		event.returnValue = app.getAppPath();
+		event.returnValue = app.getPath('userData');
 	});
 
 	ipcMain.on('getDirname', (event, filePath: string) => {
@@ -85,9 +86,40 @@ function createWindow() {
 	if (VITE_DEV_SERVER_URL) {
 		win.loadURL(VITE_DEV_SERVER_URL);
 	} else {
-		apiProcess = childProcess.spawn('cd', [path.join(process.env.DIST, '../api'), '&&', 'npm', 'run', 'start'], {
+		const apiPath = getAPIPath();
+
+		const date = new Date().toISOString().slice(0, 10).replace(/:/g, '-');
+		const time = new Date().toISOString().slice(11, 16).replace(/:/g, '-');
+
+		const logPath = app.getPath('userData') + `${dirSeparator}logs${dirSeparator}api-${date}-${time}.log`;
+
+		// Create log directory if it doesn't exist
+		if (!fs.existsSync(app.getPath('userData') + `${dirSeparator}logs`)) {
+			fs.mkdirSync(app.getPath('userData') + `${dirSeparator}logs`);
+		}
+
+		// Create log file if it doesn't exist
+		if (!fs.existsSync(logPath)) {
+			fs.writeFileSync(logPath, '');
+		}
+
+		apiProcess = childProcess.spawn(apiPath.fileName, [], {
+			cwd: apiPath.directory,
 			shell: true
 		});
+
+		apiProcess.stdout?.on('data', (data) => {
+			fs.appendFileSync(logPath, data);
+		});
+
+		apiProcess.stderr?.on('data', (data) => {
+			fs.appendFileSync(logPath, data);
+		});
+
+		apiProcess.on('close', (code) => {
+			fs.appendFileSync(logPath, `Session ended with code ${code}`);
+		});
+
 		win.loadFile(path.join(process.env.DIST, 'index.html'));
 	}
 
@@ -135,3 +167,34 @@ app.on('ready', () => {
 	tray.setToolTip('ShellControl');
 	tray.setContextMenu(contextMenu);
 });
+
+function getAPIPath() {
+	const exePath = app.getPath('exe');
+
+	const splitPath = exePath.split(dirSeparator);
+	splitPath.pop();
+	const exeDir = splitPath.join(dirSeparator) + dirSeparator + 'api' + dirSeparator;
+
+	let fileName = '';
+
+	if (process.platform === 'win32') {
+		fileName += 'main-win.exe';
+	} else if (process.platform === 'darwin') {
+		fileName += 'main-mac';
+	} else {
+		fileName += 'main-linux';
+	}
+
+	fs.writeFileSync(
+		app.getPath('userData') + '/apipath.txt',
+		JSON.stringify({
+			directory: exeDir,
+			fileName: fileName
+		})
+	);
+
+	return {
+		directory: exeDir,
+		fileName: fileName
+	};
+}
