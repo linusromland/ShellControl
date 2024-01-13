@@ -34,6 +34,12 @@ jobs:
             - name: Build Electron
               run: cd apps/client && npm run build
 
+            - name: Install Wine and Mono
+              if: env.RELEASE_EXISTS == 'no'
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y wine mono-devel
+
             - name: Create GitHub Release
               if: env.RELEASE_EXISTS == 'no'
               uses: actions/create-release@v1
