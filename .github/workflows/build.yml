@@ -48,6 +48,9 @@ jobs:
             - name: Upload Installers to GitHub Release
               if: env.RELEASE_EXISTS == 'no'
               run: |
-                  gh release upload ${{ env.VERSION }} apps/client/release/*setup*
+                  for file in $(find apps/client/release/${{ env.VERSION }} -type f -name "*.exe" -o -name "*.dmg" -o -name "*.AppImage"); do
+                    echo "Uploading $file..."
+                    gh release upload ${{ env.VERSION }} $file
+                  done
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
