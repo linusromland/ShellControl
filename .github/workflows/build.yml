@@ -48,4 +48,4 @@ jobs:
             - name: Upload Installers to GitHub Release
               if: env.RELEASE_EXISTS == 'no'
               run: |
-                  gh-release upload ${{ env.VERSION }} apps/client/release/*setup*
+                  gh release upload ${{ env.VERSION }} apps/client/release/*setup*
