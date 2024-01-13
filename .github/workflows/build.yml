@@ -1,63 +1,63 @@
-name: Build and push
+# name: Build and push
 
-on:
-    push:
-        branches: [feature/distribute]
+# on:
+#     push:
+#         branches: [master]
 
-jobs:
-    build-and-push:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v2
+# jobs:
+#     build-and-push:
+#         runs-on: ubuntu-latest
+#         steps:
+#             - name: Checkout code
+#               uses: actions/checkout@v2
 
-            - name: Extract version from package.json
-              run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
+#             - name: Extract version from package.json
+#               run: echo "VERSION=$(jq -r .version package.json)" >> $GITHUB_ENV
 
-            - name: Check if GitHub release with version already exists
-              run: |
-                  if curl --silent --fail --location "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${{ env.VERSION }}" > /dev/null; then
-                    echo "RELEASE_EXISTS=yes" >> $GITHUB_ENV
-                  else
-                    echo "RELEASE_EXISTS=no" >> $GITHUB_ENV
-                  fi
+#             - name: Check if GitHub release with version already exists
+#               run: |
+#                   if curl --silent --fail --location "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${{ env.VERSION }}" > /dev/null; then
+#                     echo "RELEASE_EXISTS=yes" >> $GITHUB_ENV
+#                   else
+#                     echo "RELEASE_EXISTS=no" >> $GITHUB_ENV
+#                   fi
 
-            - name: Install Wine and Mono
-              if: env.RELEASE_EXISTS == 'no'
-              run: |
-                  sudo dpkg --add-architecture i386
-                  sudo apt-get update
-                  sudo apt-get install -y wine wine32 mono-devel
+#             - name: Install Wine and Mono
+#               if: env.RELEASE_EXISTS == 'no'
+#               run: |
+#                   sudo dpkg --add-architecture i386
+#                   sudo apt-get update
+#                   sudo apt-get install -y wine wine32 mono-devel
 
-            - name: Install all dependencies
-              run: npm run install-all
+#             - name: Install all dependencies
+#               run: npm run install-all
 
-            - name: Build API
-              run: cd apps/api && npm run build
+#             - name: Build API
+#               run: cd apps/api && npm run build
 
-            - name: Package API
-              run: cd apps/api && npm run package
+#             - name: Package API
+#               run: cd apps/api && npm run package
 
-            - name: Build Electron
-              run: cd apps/client && npm run build
+#             - name: Build Electron
+#               run: cd apps/client && npm run build
 
-            - name: Create GitHub Release
-              if: env.RELEASE_EXISTS == 'no'
-              uses: actions/create-release@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-              with:
-                  tag_name: ${{ env.VERSION }}
-                  release_name: ${{ env.VERSION }}
-                  draft: false
-                  prerelease: false
+#             - name: Create GitHub Release
+#               if: env.RELEASE_EXISTS == 'no'
+#               uses: actions/create-release@v1
+#               env:
+#                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#               with:
+#                   tag_name: ${{ env.VERSION }}
+#                   release_name: ${{ env.VERSION }}
+#                   draft: false
+#                   prerelease: false
 
-            - name: Upload Installers to GitHub Release
-              if: env.RELEASE_EXISTS == 'no'
-              run: |
-                  for file in $(find apps/client/release/${{ env.VERSION }} -type f -name "*.exe" -o -name "*.dmg" -o -name "*.AppImage"); do
-                    echo "Uploading $file..."
-                    gh release upload ${{ env.VERSION }} $file
-                  done
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#             - name: Upload Installers to GitHub Release
+#               if: env.RELEASE_EXISTS == 'no'
+#               run: |
+#                   for file in $(find apps/client/release/${{ env.VERSION }} -type f -name "*.exe" -o -name "*.dmg" -o -name "*.AppImage"); do
+#                     echo "Uploading $file..."
+#                     gh release upload ${{ env.VERSION }} $file
+#                   done
+#               env:
+#                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
