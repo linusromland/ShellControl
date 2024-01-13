@@ -25,8 +25,9 @@ jobs:
             - name: Install Wine and Mono
               if: env.RELEASE_EXISTS == 'no'
               run: |
+                  sudo dpkg --add-architecture i386
                   sudo apt-get update
-                  sudo apt-get install -y wine mono-devel
+                  sudo apt-get install -y wine wine32 mono-devel
 
             - name: Install all dependencies
               run: npm run install-all
