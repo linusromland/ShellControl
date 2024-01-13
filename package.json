@@ -1,6 +1,6 @@
 {
 	"name": "shellcontrol",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"scripts": {
 		"install-all": "npm install  && cd ./apps/api && npm install && cd ../client && npm install && cd ../../packages/shared && npm install && cd ../../",
 		"dev-api": "cd apps/api && npm run dev",

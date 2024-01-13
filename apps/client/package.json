@@ -2,7 +2,7 @@
 	"name": "shellcontrol-client",
 	"author": "Linus Romland",
 	"description": "A tool designed for seamless management of multiple shells and services.",
-	"version": "1.0.0",
+	"version": "0.1.0",
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build && electron-builder --windows --linux --x64 --arm64 -c electron-builder.json5",
