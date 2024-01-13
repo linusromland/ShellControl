@@ -11,6 +11,7 @@ import style from './Sidebar.module.css';
 
 export default function Sidebar(): JSX.Element {
 	const version = window.ipcRenderer.sendSync('getVersion');
+	const favicon = window.ipcRenderer.sendSync('getFavicon');
 
 	const [collapsed, setCollapsed] = useState(false);
 	const [width, setWidth] = useState(250);
@@ -74,7 +75,7 @@ export default function Sidebar(): JSX.Element {
 		>
 			<div className={style.content}>
 				<div className={`${style.title} ${collapsed ? style.collapsedTitle : ''}`}>
-					<Avatar src='/favicon.png' />
+					<Avatar src={favicon} />
 					{!collapsed && (
 						<div className={style.titleText}>
 							<h1>ShellControl</h1>

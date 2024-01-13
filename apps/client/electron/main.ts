@@ -83,6 +83,12 @@ function createWindow() {
 		event.returnValue = app.getVersion();
 	});
 
+	ipcMain.on('getFavicon', (event) => {
+		const imageBase64 = fs.readFileSync(path.join(process.env.VITE_PUBLIC, 'favicon.png'), 'base64');
+
+		event.returnValue = `data:image/png;base64,${imageBase64}`;
+	});
+
 	if (VITE_DEV_SERVER_URL) {
 		win.loadURL(VITE_DEV_SERVER_URL);
 	} else {
