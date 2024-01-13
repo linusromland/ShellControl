@@ -166,8 +166,9 @@ export class CommandRunnerService {
 
 			if (!session) new NotFoundException('Session not found.');
 
-			return session.status;
+			return session?.status;
 		} catch (error) {
+			console.log(error);
 			if (isHttpException(error)) {
 				throw error;
 			}

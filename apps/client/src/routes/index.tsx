@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, MemoryRouter } from 'react-router-dom';
 import { useTheme } from '../contexts/Theme.context';
 
 import Layout from '../components/Layout/Layout';
@@ -9,7 +9,7 @@ export default function Router(): JSX.Element {
 	const { theme } = useTheme();
 	return (
 		<main className={theme}>
-			<BrowserRouter>
+			<MemoryRouter>
 				<Routes>
 					<Route element={<Layout />}>
 						<Route
@@ -26,7 +26,7 @@ export default function Router(): JSX.Element {
 						/>
 					</Route>
 				</Routes>
-			</BrowserRouter>
+			</MemoryRouter>
 		</main>
 	);
 }

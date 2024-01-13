@@ -2,7 +2,7 @@ import { Controller, Param, Get, Post, Delete, HttpCode, HttpStatus } from '@nes
 import { CommandRunnerService } from './commandRunner.service';
 import { Response } from '@local/shared/types';
 import { CommandStatus } from '@local/shared/enums';
-import { InternalServerErrorException, getValidResponse } from '../utils/getResponse';
+import { InternalServerErrorException, getValidResponse, isHttpException } from '../utils/getResponse';
 import { Log, Session } from '@local/shared/entities';
 
 @Controller('commandRunner')
@@ -38,7 +38,11 @@ export class CommandRunnerController {
 			const commandStatus = await this.commandRunnerService.getCommandStatus(projectId);
 			return getValidResponse<CommandStatus>('Command status retrieved successfully', commandStatus);
 		} catch (error) {
-			throw new InternalServerErrorException('Failed to retrieve command status');
+			if (isHttpException(error)) {
+				throw error;
+			}
+
+			throw new InternalServerErrorException('Something went wrong');
 		}
 	}
 

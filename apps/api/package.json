@@ -1,12 +1,13 @@
 {
 	"name": "shellcontrol-api",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"author": "Linus Romland (linusromland)",
 	"license": "MIT",
 	"scripts": {
 		"build": "nest build",
 		"start": "nest start",
-		"dev": "nest start --watch"
+		"dev": "nest start --watch",
+		"package": "pkg ./dist/apps/api/src/main.js --out-path release --targets node18-linux-x64,node18-macos-x64,node18-macos-arm64,node18-win-x64"
 	},
 	"dependencies": {
 		"@nestjs/common": "^10.0.0",
@@ -20,11 +21,12 @@
 		"@nestjs/websockets": "^10.3.0",
 		"class-transformer": "^0.5.1",
 		"class-validator": "^0.14.0",
+		"pkg": "^5.8.1",
 		"reflect-metadata": "^0.1.13",
 		"rxjs": "^7.8.1",
 		"sequelize": "^6.35.2",
 		"sequelize-typescript": "^2.1.6",
-		"sqlite3": "^5.1.6"
+		"sqlite3": "^5.1.7"
 	},
 	"devDependencies": {
 		"@nestjs/cli": "^10.0.0",
