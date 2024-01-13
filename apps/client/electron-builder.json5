@@ -21,7 +21,12 @@
 		}
 	],
 	mac: {
-		target: ['dmg'],
+		target: [
+			{
+				target: 'dmg',
+				arch: ['x64', 'arm64']
+			}
+		],
 		artifactName: '${productName}-Mac-${version}-Installer.${ext}'
 	},
 	win: {

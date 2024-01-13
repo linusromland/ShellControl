@@ -186,9 +186,13 @@ function getAPIPath() {
 	if (process.platform === 'win32') {
 		fileName += 'main-win.exe';
 	} else if (process.platform === 'darwin') {
-		fileName += 'main-mac';
+		if (process.arch === 'arm64') {
+			fileName += 'main-mac-arm64';
+		} else {
+			fileName += 'main-mac-x64';
+		}
 	} else {
-		fileName += 'main-linux';
+		fileName += 'main-linux-x64';
 	}
 
 	fs.writeFileSync(
