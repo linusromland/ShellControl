@@ -5,6 +5,7 @@ import { Log, Session } from '@local/shared/entities';
 import { useTheme } from '../../../../contexts/Theme.context';
 import Logs from '../../../../components/Logs/Logs';
 import { fetchUtil } from '../../../../utils/fetch.util';
+import style from './PreviousSessions.module.css';
 
 type PreviousSessionsProps = {
 	sessions: Omit<Session, 'logs'>[];
@@ -42,11 +43,8 @@ const PreviousSessions = ({ sessions }: PreviousSessionsProps) => {
 	}
 
 	return (
-		<>
-			<Table
-				aria-label='Previous Sessions'
-				selectionMode='single'
-			>
+		<div style={{ margin: '0.5rem' }}>
+			<Table aria-label='Previous Sessions'>
 				<TableHeader>
 					<TableColumn>ID</TableColumn>
 					<TableColumn>STATUS</TableColumn>
@@ -58,14 +56,16 @@ const PreviousSessions = ({ sessions }: PreviousSessionsProps) => {
 							key={session.id}
 							onClick={() => setActiveSession(session)}
 						>
-							<TableCell>{session.id}</TableCell>
-							<TableCell>{session.status}</TableCell>
-							<TableCell>{dayjs(session.createdAt).format('YYYY-MM-DD HH:mm')}</TableCell>
+							<TableCell className={style[`tableCell-${theme}`]}>{session.id}</TableCell>
+							<TableCell className={style[`tableCell-${theme}`]}>{session.status}</TableCell>
+							<TableCell className={style[`tableCell-${theme}`]}>
+								{dayjs(session.createdAt).format('YYYY-MM-DD HH:mm')}
+							</TableCell>
 						</TableRow>
 					))}
 				</TableBody>
 			</Table>
-		</>
+		</div>
 	);
 };
 
