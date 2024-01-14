@@ -6,6 +6,7 @@ import ProjectForm from '../ProjectForm/ProjectForm';
 import style from './CreateProjectModal.module.css';
 import { fetchUtil } from '../../utils/fetch.util';
 import { useProjects } from '../../contexts/Projects.context';
+import { useNavigate } from 'react-router-dom';
 
 type CreateProjectModalProps = {
 	isOpen: boolean;
@@ -14,7 +15,7 @@ type CreateProjectModalProps = {
 
 export default function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps): JSX.Element {
 	const [error, setError] = useState('');
-
+	const navigate = useNavigate();
 	const { fetchProjects } = useProjects();
 
 	const handleSave = async (project: CreateProjectDto, startAfterCreate: boolean) => {
@@ -47,7 +48,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
 		fetchProjects();
 		onClose();
 
-		// Todo: navigate to project page
+		navigate(`/project/${projectId}`);
 	};
 
 	return (
