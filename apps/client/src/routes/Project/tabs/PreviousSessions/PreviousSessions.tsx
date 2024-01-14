@@ -43,21 +43,23 @@ const PreviousSessions = ({ sessions }: PreviousSessionsProps) => {
 
 	if (activeSession) {
 		return (
-			<>
-				<Breadcrumbs variant='solid'>
+			<div style={{ margin: '0 0.5rem' }}>
+				<Breadcrumbs
+					variant='solid'
+					style={{ padding: '0.5rem' }}
+				>
 					<BreadcrumbItem onClick={() => setActiveSession(undefined)}>Sessions</BreadcrumbItem>
 					<BreadcrumbItem>{dayjs(activeSession.createdAt).format('YYYY-MM-DD HH:mm')}</BreadcrumbItem>
 				</Breadcrumbs>
 
 				<Logs logs={logs} />
-			</>
+			</div>
 		);
 	}
 
 	return (
 		<Card style={{ margin: '0 0.5rem', padding: '0.5rem' }}>
 			<Scrollable
-				autoScroll
 				height='11rem'
 				style={{ padding: '0.5rem' }}
 			>

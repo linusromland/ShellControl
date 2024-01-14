@@ -50,11 +50,13 @@ const Settings = ({ projectId, isStopped }: SettingsProps) => {
 	}
 
 	return (
-		<ProjectForm
-			newProject={false}
-			initialValues={activeProject}
-			onSave={handleSave}
-		/>
+		<div style={{ margin: '0 0.5rem', padding: '0.5rem' }}>
+			<ProjectForm
+				newProject={false}
+				initialValues={activeProject}
+				onSave={handleSave}
+			/>
+		</div>
 	);
 };
 

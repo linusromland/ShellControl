@@ -49,7 +49,7 @@ const CurrentSession = ({ session, isStopped }: CurrentSessionProps) => {
 	}, [session, isStopped]);
 
 	return (
-		<>
+		<div style={{ margin: '0 0.5rem', padding: '0.5rem' }}>
 			{isStopped ? (
 				<div>
 					<p
@@ -67,7 +67,7 @@ const CurrentSession = ({ session, isStopped }: CurrentSessionProps) => {
 					{!isFetching && session && <Logs logs={logs} />}
 				</div>
 			)}
-		</>
+		</div>
 	);
 };
 
