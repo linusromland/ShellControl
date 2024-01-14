@@ -28,12 +28,24 @@ export class CommandRunnerService {
 		@InjectModel(Log)
 		private logModel: typeof Log
 	) {
+		this.initAutoStartProjects();
 		this.verifyRunningSessions();
 		setInterval(() => this.verifyRunningSessions(), 30 * 1000); // 30 seconds
 	}
 
 	private logger = new Logger('CommandRunnerService');
 	private runningCommands: Map<number, ChildProcessWithoutNullStreams> = new Map();
+
+	private async initAutoStartProjects() {
+		const projects = await this.projectService.findAll();
+
+		const autoStartProjects = projects.filter((project) => project.autoStart);
+
+		for (const project of autoStartProjects) {
+			this.logger.log(`Auto-starting project ${project.id}`);
+			this.startCommand(project.id);
+		}
+	}
 
 	async startCommand(projectId: number) {
 		try {
