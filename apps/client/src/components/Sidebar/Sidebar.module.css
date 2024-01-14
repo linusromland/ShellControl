@@ -69,6 +69,10 @@
 	background: #e6e4e4;
 }
 
+.action-dark:hover {
+	background: #2c2c2c;
+}
+
 .activeProject {
 	background: #0070f0;
 	color: #fff;

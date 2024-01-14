@@ -11,7 +11,7 @@ type ThemeSelectorProps = {
 };
 
 export default function ThemeSelector({ small }: ThemeSelectorProps) {
-	const { setTheme, activeTheme } = useTheme();
+	const { setTheme, activeTheme, theme } = useTheme();
 
 	if (small) {
 		return (
@@ -21,7 +21,7 @@ export default function ThemeSelector({ small }: ThemeSelectorProps) {
 				showArrow
 			>
 				<div
-					className={style.action}
+					className={`${style[`action-${theme}`]} ${style.action}`}
 					onClick={() => {
 						if (activeTheme === 'light') {
 							setTheme('dark');

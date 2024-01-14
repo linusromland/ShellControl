@@ -138,7 +138,7 @@ export default function Sidebar(): JSX.Element {
 						showArrow
 					>
 						<div
-							className={style.action}
+							className={`${style[`action-${theme}`]} ${style.action}`}
 							onClick={() => setShowCreateProject(true)}
 						>
 							<Avatar icon={<AddIcon fontSize='small' />} />
