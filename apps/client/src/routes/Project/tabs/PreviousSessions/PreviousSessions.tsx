@@ -7,7 +7,8 @@ import {
 	TableCell,
 	TableColumn,
 	TableHeader,
-	TableRow
+	TableRow,
+	Card
 } from '@nextui-org/react';
 import dayjs from 'dayjs';
 import { Log, Session } from '@local/shared/entities';
@@ -54,12 +55,21 @@ const PreviousSessions = ({ sessions }: PreviousSessionsProps) => {
 	}
 
 	return (
-		<div style={{ margin: '0 0.5rem' }}>
+		<Card style={{ margin: '0 0.5rem', padding: '0.5rem' }}>
 			<Scrollable
 				autoScroll
-				height='9rem'
+				height='11rem'
+				style={{ padding: '0.5rem' }}
 			>
-				<Table aria-label='Previous Sessions'>
+				<Table
+					aria-label='Previous Sessions'
+					removeWrapper
+					isHeaderSticky
+					classNames={{
+						tr: `${style[`tableRow-${theme}`]} ${style[`tableRow`]}`,
+						td: `${style[`tableCell-${theme}`]} ${style[`tableCell`]}`
+					}}
+				>
 					<TableHeader>
 						<TableColumn>ID</TableColumn>
 						<TableColumn>STATUS</TableColumn>
@@ -71,17 +81,15 @@ const PreviousSessions = ({ sessions }: PreviousSessionsProps) => {
 								key={session.id}
 								onClick={() => setActiveSession(session)}
 							>
-								<TableCell className={style[`tableCell-${theme}`]}>{session.id}</TableCell>
-								<TableCell className={style[`tableCell-${theme}`]}>{session.status}</TableCell>
-								<TableCell className={style[`tableCell-${theme}`]}>
-									{dayjs(session.createdAt).format('YYYY-MM-DD HH:mm')}
-								</TableCell>
+								<TableCell>{session.id}</TableCell>
+								<TableCell>{session.status}</TableCell>
+								<TableCell>{dayjs(session.createdAt).format('YYYY-MM-DD HH:mm')}</TableCell>
 							</TableRow>
 						))}
 					</TableBody>
 				</Table>
 			</Scrollable>
-		</div>
+		</Card>
 	);
 };
 

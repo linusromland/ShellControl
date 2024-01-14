@@ -4,9 +4,10 @@ type ScrollableProps = {
 	height: string;
 	children: React.ReactNode;
 	autoScroll?: boolean;
+	style?: React.CSSProperties;
 };
 
-const Scrollable = ({ height, children, autoScroll }: ScrollableProps) => {
+const Scrollable = ({ height, children, autoScroll, style }: ScrollableProps) => {
 	const scrollableContainer = useRef<HTMLDivElement>(null);
 	const [atBottom, setAtBottom] = useState(true);
 
@@ -51,7 +52,8 @@ const Scrollable = ({ height, children, autoScroll }: ScrollableProps) => {
 				overflowY: 'auto',
 				scrollBehavior: 'smooth',
 				height: `calc(100vh - ${height})`,
-				boxSizing: 'border-box'
+				boxSizing: 'border-box',
+				...style
 			}}
 			ref={scrollableContainer}
 		>
