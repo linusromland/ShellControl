@@ -29,23 +29,34 @@ async function checkAPI() {
 	const API_URL = storage.get(StorageConfigKey.API_URL);
 
 	if (!API_URL) {
+		console.log('No API URL set, continuing anyway');
 		postMessage({ payload: 'removeLoading' }, '*');
-	} else {
-		await pollAPI(API_URL);
+		renderDom();
+		return;
 	}
-	renderDom();
+	await pollAPI(API_URL);
 }
 
 // Poll the api health endpoint to wait for startup
 async function pollAPI(apiURL: string, index = 0) {
-	if (index > 10) {
+	console.log('Checking if API is up, attempt', index);
+
+	if (index >= 5) {
+		console.log('Failed to connect to API, continuing anyway');
+		postMessage({ payload: 'removeLoading' }, '*');
+		renderDom();
 		return; // Give up after 10 tries
 	}
-
-	const res = await fetch(`${apiURL}/health`);
-	if (res.status === 200) {
-		postMessage({ payload: 'removeLoading' }, '*');
-		return;
+	try {
+		const res = await fetch(`${apiURL}/health`);
+		if (res.status === 200) {
+			console.log('API is up, continuing');
+			postMessage({ payload: 'removeLoading' }, '*');
+			renderDom();
+			return;
+		}
+	} catch (_) {
+		console.log('API is not up yet, trying again');
 	}
 
 	setTimeout(() => pollAPI(apiURL, index + 1), 2000); // Try again in 2 seconds

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1 (2024-01-14)
+
+-   Fixed infinite loading bug
+
 ## 0.2.0 (2024-01-14)
 
 -   Various styling improvements
