@@ -31,22 +31,25 @@ export function setupIPCMainHandlers(win?: BrowserWindow | null) {
 		event.returnValue = path.dirname(filePath);
 	});
 
-	ipcMain.on('sendNotification', (_, title: string, body: string, notificationId: string) => {
-		try {
-			const notification = new Notification({
-				title,
-				body
-			});
+	ipcMain.on(
+		'sendNotification',
+		(_, title: string, body: string, notificationChannel: string, notificationId: string) => {
+			try {
+				const notification = new Notification({
+					title,
+					body
+				});
 
-			notification.on('click', () => {
-				win?.webContents.send('notificationClicked', notificationId);
-			});
+				notification.on('click', () => {
+					win?.webContents.send(notificationChannel, notificationId);
+				});
 
-			notification.show();
-		} catch (error) {
-			console.log(error);
+				notification.show();
+			} catch (error) {
+				console.log(error);
+			}
 		}
-	});
+	);
 
 	ipcMain.on('getVersion', (event) => {
 		event.returnValue = app.getVersion();

@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../contexts/Theme.context';
 import Sidebar from '../Sidebar/Sidebar';
 import ServerConfigModal from '../ServerConfigModal/ServerConfigModal';
@@ -6,6 +6,11 @@ import style from './Layout.module.css';
 
 export default function Layout(): JSX.Element {
 	const { theme } = useTheme();
+	const navigate = useNavigate();
+
+	window.ipcRenderer.on('navigateToProject', (_event, projectId) => {
+		navigate(`/project/${projectId}`);
+	});
 
 	return (
 		<ServerConfigModal>

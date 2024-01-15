@@ -28,8 +28,6 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }): JSX.Ele
 		// Find the project by the id
 		const project = projects.find((p) => p.id.toString() === projectId);
 
-		console.log('Found project:', project);
-
 		// If the project doesn't exist, return
 		if (!project) return;
 
@@ -40,6 +38,16 @@ export const ProjectsProvider = ({ children }: { children: ReactNode }): JSX.Ele
 		if (new Date(data.updatedAt) < new Date(project.updatedAt)) return;
 
 		console.log(`Project ${projectId} status changed to ${data.status}`);
+
+		if (data.status === 'CRASHED') {
+			window.ipcRenderer.send(
+				'sendNotification',
+				'Project crashed',
+				`Project ${project.name} crashed`,
+				'navigateToProject',
+				project.id.toString()
+			);
+		}
 
 		const updatedProjects = projects.map((project) =>
 			project.id.toString() === projectId ? { ...project, status: data.status } : project
