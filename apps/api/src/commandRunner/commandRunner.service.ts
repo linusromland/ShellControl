@@ -92,7 +92,7 @@ export class CommandRunnerService {
 				updateTime: updateTime
 			});
 
-			const onData = async (data: Buffer) => {
+			const onData = async (data: Buffer | string) => {
 				const log = await this.logModel.create({
 					message: data.toString(),
 					sessionId: session.id,
@@ -102,6 +102,7 @@ export class CommandRunnerService {
 
 				this.commandRunnerGateway.broadcastToRoom(session.id?.toString(), 'log', log);
 			};
+			onData('Executed command: ' + command);
 
 			subprocess.stdout.on('data', onData);
 			subprocess.stderr.on('data', onData);
@@ -115,6 +116,7 @@ export class CommandRunnerService {
 					this.logger.log(`Command exited with signal ${signal}`);
 
 					this.setSessionStatus({ sessionId: session.id }, CommandStatus.STOPPED);
+					onData('Command exited with signal ' + signal);
 
 					return;
 				}
@@ -122,6 +124,7 @@ export class CommandRunnerService {
 				this.logger.log(`Command exited with code ${code}`);
 
 				const status = code === 0 ? CommandStatus.STOPPED : CommandStatus.CRASHED;
+				onData('Command exited with code ' + code);
 
 				this.setSessionStatus({ sessionId: session.id }, status);
 			});
