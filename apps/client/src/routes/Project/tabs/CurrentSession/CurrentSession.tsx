@@ -6,6 +6,7 @@ import { useSocket } from '../../../../hooks/useSocket';
 import { fetchUtil } from '../../../../utils/fetch.util';
 import style from './CurrentSession.module.css';
 import Logs from '../../../../components/Logs/Logs';
+import { Card } from '@nextui-org/react';
 
 type CurrentSessionProps = {
 	projectId: string;
@@ -56,9 +57,9 @@ const CurrentSession = ({ session, isStopped }: CurrentSessionProps) => {
 	});
 
 	return (
-		<div style={{ margin: '0 0.5rem', padding: '0.5rem' }}>
+		<>
 			{logsFetched !== session?.id.toString() ? (
-				<div>
+				<div style={{ margin: '0 0.5rem' }}>
 					<p
 						className={style.text}
 						style={{
@@ -69,12 +70,15 @@ const CurrentSession = ({ session, isStopped }: CurrentSessionProps) => {
 					</p>
 				</div>
 			) : (
-				<div className={style.logWrapper}>
+				<Card
+					style={{ margin: '0 0.5rem', padding: '0.5rem' }}
+					className={style.logWrapper}
+				>
 					{isFetching && <Spinner />}
 					{!isFetching && session && <Logs logs={logs} />}
-				</div>
+				</Card>
 			)}
-		</div>
+		</>
 	);
 };
 

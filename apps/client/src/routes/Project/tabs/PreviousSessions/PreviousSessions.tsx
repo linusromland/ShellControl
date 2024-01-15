@@ -43,7 +43,7 @@ const PreviousSessions = ({ sessions }: PreviousSessionsProps) => {
 
 	if (activeSession) {
 		return (
-			<div style={{ margin: '0 0.5rem' }}>
+			<Card style={{ margin: '0 0.5rem' }}>
 				<Breadcrumbs
 					variant='solid'
 					style={{ padding: '0.5rem' }}
@@ -53,7 +53,7 @@ const PreviousSessions = ({ sessions }: PreviousSessionsProps) => {
 				</Breadcrumbs>
 
 				<Logs logs={logs} />
-			</div>
+			</Card>
 		);
 	}
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Project } from '@local/shared/entities';
 import { fetchUtil } from '../../../../utils/fetch.util';
 import { useProjects } from '../../../../contexts/Projects.context';
-import { Spinner } from '@nextui-org/react';
+import { Card, Spinner } from '@nextui-org/react';
 import ProjectForm from '../../../../components/ProjectForm/ProjectForm';
 import { UpdateProjectDto } from '@local/shared/dtos';
 
@@ -50,13 +50,13 @@ const Settings = ({ projectId, isStopped }: SettingsProps) => {
 	}
 
 	return (
-		<div style={{ margin: '0 0.5rem', padding: '0.5rem' }}>
+		<Card style={{ margin: '0 0.5rem', padding: '1rem' }}>
 			<ProjectForm
 				newProject={false}
 				initialValues={activeProject}
 				onSave={handleSave}
 			/>
-		</div>
+		</Card>
 	);
 };
 
