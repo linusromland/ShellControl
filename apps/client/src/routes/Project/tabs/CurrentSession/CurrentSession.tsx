@@ -8,6 +8,7 @@ import style from './CurrentSession.module.css';
 import Logs from '../../../../components/Logs/Logs';
 
 type CurrentSessionProps = {
+	projectId: string;
 	session?: Omit<Session, 'logs'>;
 	isStopped: boolean;
 };
@@ -17,6 +18,11 @@ const CurrentSession = ({ session, isStopped }: CurrentSessionProps) => {
 
 	const [logs, setLogs] = useState<Log[]>([]);
 	const [isFetching, setIsFetching] = useState(false);
+	const [logsFetched, setLogsFetched] = useState<string | undefined>();
+
+	useEffect(() => {
+		if (logsFetched !== session?.id.toString()) setLogsFetched(undefined);
+	}, [session, logsFetched]);
 
 	useEffect(() => {
 		(async () => {
@@ -30,8 +36,15 @@ const CurrentSession = ({ session, isStopped }: CurrentSessionProps) => {
 
 			setIsFetching(false);
 
-			if (response?.success && response?.data) setLogs(response.data);
+			if (response?.success && response?.data) {
+				setLogs(response.data);
+				setLogsFetched(session.id.toString());
+			}
 		})();
+
+		if (session) connect();
+		return () => disconnect();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [session, isStopped]);
 
 	const { connect, disconnect } = useSocket<Log>({
@@ -42,15 +55,9 @@ const CurrentSession = ({ session, isStopped }: CurrentSessionProps) => {
 		}
 	});
 
-	useEffect(() => {
-		if (session && !isStopped) connect();
-		return () => disconnect();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [session, isStopped]);
-
 	return (
 		<div style={{ margin: '0 0.5rem', padding: '0.5rem' }}>
-			{isStopped ? (
+			{logsFetched !== session?.id.toString() ? (
 				<div>
 					<p
 						className={style.text}

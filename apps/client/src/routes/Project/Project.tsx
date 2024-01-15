@@ -28,6 +28,10 @@ const Project: React.FC = () => {
 	const isStopped = useMemo(() => !project?.status || project?.status === 'STOPPED', [project]);
 
 	const currentSession = useMemo(() => sessions.find((session) => session.status === 'RUNNING'), [sessions]);
+	const latestSession = useMemo(
+		() => sessions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0],
+		[sessions]
+	);
 
 	const getProjectSessions = useCallback(async () => {
 		if (!id) return;
@@ -61,8 +65,9 @@ const Project: React.FC = () => {
 					key='currentSession'
 				>
 					<CurrentSession
+						projectId={id ?? ''}
 						isStopped={isStopped && !currentSession}
-						session={currentSession}
+						session={latestSession}
 					/>
 				</Tab>
 				<Tab
