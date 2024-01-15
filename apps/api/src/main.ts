@@ -4,7 +4,7 @@ import { INestApplication } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { AppModule } from './app.module';
 
-const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;
+const PORT = process.env.PORT ? Number(process.env.PORT) : 63000;
 
 async function bootstrap() {
 	const CORS_OPTIONS = {

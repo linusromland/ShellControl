@@ -8,7 +8,7 @@ type ServerConfigModalProps = {
 
 export default function ServerConfigModal({ children }: ServerConfigModalProps): JSX.Element {
 	const [isOpen, setIsOpen] = useState(true);
-	const [url, setUrl] = useState('http://localhost:3000');
+	const [url, setUrl] = useState('http://localhost:63000');
 	const [error, setError] = useState('');
 
 	const getStoredURL = useCallback(async () => {
@@ -70,7 +70,7 @@ export default function ServerConfigModal({ children }: ServerConfigModalProps):
 					<p>
 						Enter the URL of the server you want to connect to.
 						<br />
-						This is usually <Code>http://localhost:3000</Code> if you are running this locally.
+						This is usually <Code>http://localhost:63000</Code> if you are running this locally.
 					</p>
 					<Input
 						aria-label='URL'

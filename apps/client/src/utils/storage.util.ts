@@ -19,7 +19,7 @@ export default class Storage {
 
 	private generateBaseConfig() {
 		return {
-			[StorageConfigKey.API_URL]: 'http://localhost:3000'
+			[StorageConfigKey.API_URL]: 'http://localhost:63000'
 		};
 	}
 
