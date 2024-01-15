@@ -5,7 +5,7 @@ import { fetchUtil } from '../utils/fetch.util';
 
 interface ProjectsContextProps {
 	projects: (Project & { status?: string })[];
-	fetchProjects: () => void;
+	fetchProjects: () => Promise<void>;
 }
 
 const ProjectsContext = createContext<ProjectsContextProps | undefined>(undefined);

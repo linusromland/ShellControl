@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { startCase } from 'lodash';
+import { debounce, startCase } from 'lodash';
 import { Avatar, Divider, Tooltip } from '@nextui-org/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
 import CreateProjectModal from '../CreateProjectModal/CreateProjectModal';
 import ThemeSelector from './components/ThemeSelector/ThemeSelector';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { useProjects } from '../../contexts/Projects.context';
 import { useTheme } from '../../contexts/Theme.context';
 import style from './Sidebar.module.css';
@@ -16,6 +17,7 @@ export default function Sidebar(): JSX.Element {
 	const [collapsed, setCollapsed] = useState(false);
 	const [width, setWidth] = useState(250);
 	const [resizing, setResizing] = useState(false);
+	const [refreshing, setRefreshing] = useState(false);
 	const [showCreateProject, setShowCreateProject] = useState(false);
 
 	const { projects, fetchProjects } = useProjects();
@@ -63,6 +65,12 @@ export default function Sidebar(): JSX.Element {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
+	const handleRefresh = async () => {
+		setRefreshing(true);
+		await fetchProjects();
+		debounce(() => setRefreshing(false), 1000)();
+	};
+
 	return (
 		<div
 			ref={sidebarRef}
@@ -85,9 +93,18 @@ export default function Sidebar(): JSX.Element {
 				</div>
 
 				<Divider />
+
 				{projects.length !== 0 && (
 					<>
 						<div className={style.projects}>
+							<div className={style.projectsHeader}>
+								<p className={style.projectsTitle}>Projects</p>
+								<RefreshIcon
+									className={`${style.refreshIcon} ${refreshing ? style.refreshing : ''}`}
+									fontSize='small'
+									onClick={handleRefresh}
+								/>
+							</div>
 							{projects.map((project) => {
 								const isActiveProject = project.id.toString() === id;
 
