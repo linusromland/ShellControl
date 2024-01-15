@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Notification, Tray, Menu } from 'electron';
+import { app, BrowserWindow, ipcMain, Notification, Tray, Menu, dialog } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
 import childProcess from 'node:child_process';
@@ -87,6 +87,14 @@ function createWindow() {
 		const imageBase64 = fs.readFileSync(path.join(process.env.VITE_PUBLIC, 'favicon.png'), 'base64');
 
 		event.returnValue = `data:image/png;base64,${imageBase64}`;
+	});
+
+	ipcMain.on('openDirectoryDialog', async (event) => {
+		const result = await dialog.showOpenDialog(win!, {
+			properties: ['openDirectory']
+		});
+
+		event.returnValue = result.filePaths[0];
 	});
 
 	if (VITE_DEV_SERVER_URL) {

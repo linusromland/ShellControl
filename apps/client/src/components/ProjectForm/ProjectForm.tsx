@@ -3,7 +3,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import { CreateProjectDto, UpdateProjectDto } from '@local/shared/dtos';
 import style from './ProjectForm.module.css';
 import { Project } from '@local/shared/entities';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 type CreateProjectFormProps = {
 	newProject: true;
@@ -20,8 +20,6 @@ type UpdateProjectFormProps = {
 type ProjectFormProps = CreateProjectFormProps | UpdateProjectFormProps;
 
 export default function ProjectForm({ newProject, initialValues, onSave }: ProjectFormProps): JSX.Element {
-	const fileDirectoryRef = useRef<HTMLInputElement>(null);
-
 	const [name, setName] = useState<string>(initialValues?.name || '');
 	const [description, setDescription] = useState<string>(initialValues?.description || '');
 	const [directory, setDirectory] = useState<string>(initialValues?.directory || '');
@@ -65,7 +63,9 @@ export default function ProjectForm({ newProject, initialValues, onSave }: Proje
 						<Button
 							variant='flat'
 							onClick={() => {
-								fileDirectoryRef.current?.click();
+								const directory = window.ipcRenderer.sendSync('openDirectoryDialog');
+
+								setDirectory(directory || '');
 							}}
 						>
 							<FolderOpenIcon />
@@ -179,24 +179,6 @@ export default function ProjectForm({ newProject, initialValues, onSave }: Proje
 					Save
 				</Button>
 			</div>
-
-			<input
-				ref={fileDirectoryRef}
-				type='file'
-				// @ts-expect-error webkitRelativePath is not in the HTMLInputElement type definition but it is a valid property
-				webkitdirectory=''
-				style={{ display: 'none' }}
-				onChange={(e) => {
-					const filePath = e.target.files?.[0]?.path;
-
-					if (!filePath) {
-						return;
-					}
-
-					const directoryPath = window.ipcRenderer.sendSync('getDirname', filePath);
-					setDirectory(directoryPath);
-				}}
-			/>
 		</>
 	);
 }
