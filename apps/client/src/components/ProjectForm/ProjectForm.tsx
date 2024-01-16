@@ -9,17 +9,19 @@ type CreateProjectFormProps = {
 	newProject: true;
 	initialValues?: undefined;
 	onSave: (project: CreateProjectDto, startAfterCreate: boolean) => void;
+	onDelete: undefined;
 };
 
 type UpdateProjectFormProps = {
 	newProject?: false;
 	initialValues: Project;
 	onSave: (project: UpdateProjectDto) => void;
+	onDelete: (projectId: string) => void;
 };
 
 type ProjectFormProps = CreateProjectFormProps | UpdateProjectFormProps;
 
-export default function ProjectForm({ newProject, initialValues, onSave }: ProjectFormProps): JSX.Element {
+export default function ProjectForm({ newProject, initialValues, onSave, onDelete }: ProjectFormProps): JSX.Element {
 	const [name, setName] = useState<string>(initialValues?.name || '');
 	const [description, setDescription] = useState<string>(initialValues?.description || '');
 	const [directory, setDirectory] = useState<string>(initialValues?.directory || '');
@@ -178,6 +180,11 @@ export default function ProjectForm({ newProject, initialValues, onSave }: Proje
 				>
 					Save
 				</Button>
+				{!newProject && (
+					<Button color="danger" onClick={() => onDelete(initialValues.id)}>
+						Delete
+					</Button>
+				)}
 			</div>
 		</>
 	);

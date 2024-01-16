@@ -5,6 +5,7 @@ import { useProjects } from '../../../../contexts/Projects.context';
 import { Card, Spinner } from '@nextui-org/react';
 import ProjectForm from '../../../../components/ProjectForm/ProjectForm';
 import { UpdateProjectDto } from '@local/shared/dtos';
+import { useNavigate } from 'react-router-dom';
 
 type SettingsProps = {
 	projectId: string;
@@ -12,6 +13,7 @@ type SettingsProps = {
 };
 
 const Settings = ({ projectId, isStopped }: SettingsProps) => {
+	const navigate = useNavigate();
 	const { projects, fetchProjects } = useProjects();
 
 	const [activeProject, setActiveProject] = useState<Project>();
@@ -45,6 +47,14 @@ const Settings = ({ projectId, isStopped }: SettingsProps) => {
 		fetchProjects();
 	};
 
+	const handleDelete = async (projectId: string) => {
+		await fetchUtil(`project/${projectId}`, {
+			method: 'DELETE'
+		});
+		await fetchProjects();
+		navigate('/');
+	}
+
 	if (!activeProject) {
 		return <Spinner />;
 	}
@@ -55,6 +65,7 @@ const Settings = ({ projectId, isStopped }: SettingsProps) => {
 				newProject={false}
 				initialValues={activeProject}
 				onSave={handleSave}
+				onDelete={handleDelete}
 			/>
 		</Card>
 	);
