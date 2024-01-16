@@ -29,6 +29,7 @@ export default function ProjectForm({ newProject, initialValues, onSave, onDelet
 	const [autoStart, setAutoStart] = useState<boolean>(initialValues?.autoStart || false);
 	const [startAfterCreate, setStartAfterCreate] = useState<boolean>(false);
 	const [errors, setErrors] = useState<Record<string, string>>({});
+	const [confirmDelete, setConfirmDelete] = useState(false);
 
 	return (
 		<>
@@ -181,8 +182,15 @@ export default function ProjectForm({ newProject, initialValues, onSave, onDelet
 					Save
 				</Button>
 				{!newProject && (
-					<Button color="danger" onClick={() => onDelete(initialValues.id)}>
-						Delete
+					<Button color="danger" onClick={() => {
+						if (confirmDelete) {
+							onDelete(initialValues.id.toString());
+							return;
+						}
+
+						setConfirmDelete(true);
+					}}>
+						{confirmDelete ? 'Confirm Delete' : 'Delete'}
 					</Button>
 				)}
 			</div>
