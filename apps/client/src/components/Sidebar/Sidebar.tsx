@@ -9,6 +9,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { useProjects } from '../../contexts/Projects.context';
 import { useTheme } from '../../contexts/Theme.context';
 import style from './Sidebar.module.css';
+import Scrollable from '../Scrollable/Scrollable.tsx';
 
 export default function Sidebar(): JSX.Element {
 	const version = window.ipcRenderer.sendSync('getVersion');
@@ -96,52 +97,56 @@ export default function Sidebar(): JSX.Element {
 
 				{projects.length !== 0 && (
 					<>
+
 						<div className={style.projects}>
 							<div className={style.projectsHeader}>
 								<p className={style.projectsTitle}>Projects</p>
 								<RefreshIcon
 									className={`${style.refreshIcon} ${refreshing ? style.refreshing : ''}`}
-									fontSize='small'
+									fontSize="small"
 									onClick={handleRefresh}
 								/>
 							</div>
-							{projects.map((project) => {
-								const isActiveProject = project.id.toString() === id;
+							<Scrollable height="30rem">
+								{projects.map((project) => {
+									const isActiveProject = project.id.toString() === id;
 
-								return (
-									<Tooltip
-										content={project.name}
-										key={project.id}
-										isDisabled={!collapsed}
-										placement='right'
-										showArrow
-									>
-										<div
-											className={`${style.project} ${
-												isActiveProject && !collapsed ? style.activeProject : ''
-											}`}
-											onClick={() => navigate(`/project/${project.id}`)}
+									return (
+										<Tooltip
+											content={project.name}
+											key={project.id}
+											isDisabled={!collapsed}
+											placement="right"
+											showArrow
 										>
-											<Avatar
-												name={project.name}
-												color={
-													isActiveProject ? (collapsed ? 'primary' : 'secondary') : 'default'
-												}
-												key={project.id + isActiveProject}
-											/>
-											{!collapsed && (
-												<div className={style.projectText}>
-													<span>{project.name}</span>
-													<span className={style.status}>
+											<div
+												className={`${style.project} ${
+													isActiveProject && !collapsed ? style.activeProject : ''
+												}`}
+												onClick={() => navigate(`/project/${project.id}`)}
+											>
+												<Avatar
+													name={project.name}
+													color={
+														isActiveProject ? (collapsed ? 'primary' : 'secondary') : 'default'
+													}
+													key={project.id + isActiveProject}
+												/>
+												{!collapsed && (
+													<div className={style.projectText}>
+														<span>{project.name}</span>
+														<span className={style.status}>
 														Status: {startCase((project.status || 'STOPPED').toLowerCase())}
 													</span>
-												</div>
-											)}
-										</div>
-									</Tooltip>
-								);
-							})}
+													</div>
+												)}
+											</div>
+										</Tooltip>
+									);
+								})}
+							</Scrollable>
 						</div>
+
 
 						<Divider />
 					</>
@@ -149,16 +154,16 @@ export default function Sidebar(): JSX.Element {
 
 				<div className={style.actions}>
 					<Tooltip
-						content='Create Project'
+						content="Create Project"
 						isDisabled={!collapsed}
-						placement='right'
+						placement="right"
 						showArrow
 					>
 						<div
 							className={`${style[`action-${theme}`]} ${style.action}`}
 							onClick={() => setShowCreateProject(true)}
 						>
-							<Avatar icon={<AddIcon fontSize='small' />} />
+							<Avatar icon={<AddIcon fontSize="small" />} />
 							{!collapsed && <span>Create Project</span>}
 						</div>
 					</Tooltip>
@@ -174,7 +179,7 @@ export default function Sidebar(): JSX.Element {
 				className={style.resizeHandle}
 				onMouseDown={() => setResizing(true)}
 			>
-				<Divider orientation='vertical' />
+				<Divider orientation="vertical" />
 			</div>
 
 			<CreateProjectModal
