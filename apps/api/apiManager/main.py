@@ -1,21 +1,26 @@
 import subprocess
 import os
 import sys
+import time
 from pystray import Icon as icon, Menu as menu, MenuItem as item
 from PIL import Image
 import portalocker
+from pywinauto import Desktop, Application
+
+ELECTRON_CLIENT_EXE = "../../client/release/0.2.1/win-unpacked/ShellControl.exe"
+API_SERVICE_EXE = "../release/main-win.exe"
 
 
 def start_service():
     image = Image.open("icon.png")
-    api_service_executable_path = "../release/main-win.exe"
 
     print("Starting ShellControl Service...")
-    api_pid = subprocess.Popen([api_service_executable_path])
+    api_pid = subprocess.Popen([API_SERVICE_EXE])
     print("ShellControl Service started successfully.")
+    handle_electron()
 
     def handle_open(icon):
-        print("Opening ShellControl...")
+        handle_electron()
 
     state = False
 
@@ -25,6 +30,7 @@ def start_service():
 
     def handle_exit(icon):
         print("Exiting ShellControl Service...")
+        handle_electron("close")
         api_pid.kill()
         icon.stop()
 
@@ -42,10 +48,37 @@ def single_instance_check():
     try:
         portalocker.lock(lock_file, portalocker.LOCK_EX | portalocker.LOCK_NB)
     except portalocker.LockException:
+        handle_electron()
         print("Another instance is already running. Exiting.")
         sys.exit(1)
 
     return lock_file
+
+
+def handle_electron(action="open"):
+    electron_pid = get_electron_pid()
+
+    if action == "close" and electron_pid:
+        app = Application(backend='uia').connect(process=electron_pid)
+        main_window = app.window()
+        main_window.close()
+
+    if action == "open" and not electron_pid:
+        print("Opening Electron client...")
+        subprocess.Popen([ELECTRON_CLIENT_EXE])
+
+    if action == "open" and electron_pid:
+        print("Electron client already running, bringing to front...")
+        app = Application(backend='uia').connect(process=electron_pid)
+        main_window = app.window()
+        main_window.set_focus()
+
+
+def get_electron_pid():
+    for proc in Desktop(backend='uia').windows():
+        if proc.window_text() == "ShellControl":
+            return proc.process_id()
+    return None
 
 
 def main():
