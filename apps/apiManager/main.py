@@ -7,8 +7,8 @@ from PIL import Image
 import portalocker
 from pywinauto import Desktop, Application
 
-ELECTRON_CLIENT_EXE = "../../client/release/0.2.1/win-unpacked/ShellControl.exe"
-API_SERVICE_EXE = "../release/main-win.exe"
+ELECTRON_CLIENT_EXE = "../client/release/0.2.1/win-unpacked/ShellControl.exe"
+API_SERVICE_EXE = "../api/release/main-win.exe"
 
 
 def start_service():
