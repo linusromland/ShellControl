@@ -1,4 +1,6 @@
 # compiled output
+build
+build-logs
 dist
 release
 node_modules
