@@ -32,7 +32,7 @@ pip install -U pyinstaller > $BUILD_LOG_OUTPUT_FILE 2>&1
 pip install -r requirements.txt > $BUILD_LOG_OUTPUT_FILE 2>&1
 rm -rf dist/*
 rm -rf build/*
-pyinstaller --onefile main.py > $BUILD_LOG_OUTPUT_FILE 2>&1
+pyinstaller --onefile --noconsole main.py > $BUILD_LOG_OUTPUT_FILE 2>&1
 echo "AppManager built."
 
 # Move the built files to the dist folder

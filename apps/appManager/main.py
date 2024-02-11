@@ -18,7 +18,7 @@ def start_service():
     print("ShellControl Service started successfully.")
     handle_electron()
 
-    def handle_open(icon):
+    def handle_open():
         handle_electron()
 
     state = False
