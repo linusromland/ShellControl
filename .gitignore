@@ -4,6 +4,7 @@ build-logs
 dist
 release
 node_modules
+*setup*
 
 # Logs
 *.log

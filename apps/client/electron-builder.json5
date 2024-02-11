@@ -10,12 +10,6 @@
 		output: 'release/'
 	},
 	files: ['dist', 'dist-electron'],
-	extraFiles: [
-		{
-			from: '../api/release',
-			to: 'api/'
-		}
-	],
 	win: {
 		icon: 'public/favicon.png',
 		target: [
