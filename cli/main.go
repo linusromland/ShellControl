@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"myapp/ipc"
+
+	"github.com/linusromland/ShellControl/ipc"
 )
 
 func main() {

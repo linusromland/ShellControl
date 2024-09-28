@@ -14,7 +14,7 @@ type unixIPC struct {
 
 func newUnixIPC() IPC {
     return &unixIPC{
-        path: "/tmp/myapp.sock",
+        path: "/tmp/ShellControl.sock",
     }
 }
 
