@@ -83,7 +83,7 @@ type unixIPC struct {
 
 func newUnixIPC() IPC {
     return &unixIPC{
-        path: "/tmp/myapp.sock",
+        path: "/tmp/ShellControl.sock",
     }
 }
 
@@ -143,7 +143,7 @@ type windowsIPC struct {
 
 func newWindowsIPC() IPC {
     return &windowsIPC{
-        pipeName: `\\.\pipe\myapp`,
+        pipeName: `\\.\pipe\ShellControl`,
     }
 }
 
@@ -195,7 +195,7 @@ package main
 
 import (
     "fmt"
-    "myapp/ipc"
+    "ShellControl/ipc"
 )
 
 func main() {
@@ -218,7 +218,7 @@ package main
 
 import (
     "fmt"
-    "myapp/ipc"
+    "ShellControl/ipc"
 )
 
 func main() {

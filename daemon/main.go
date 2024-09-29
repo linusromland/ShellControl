@@ -1,19 +1,18 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
-	"github.com/linusromland/ShellControl/ipc"
+	"github.com/linusromland/ShellControl/daemon/ipc"
 )
 
 func main() {
-    daemonIPC, err := ipc.NewIPC()
+
+    log.Println("Daemon started")
+
+    // Start IPC based on platform (Unix or Windows)
+    err := ipc.StartIPC()
     if err != nil {
-        fmt.Println("Error starting IPC:", err)
-        return
-    }
-    err = daemonIPC.Listen()
-    if err != nil {
-        fmt.Println("Error running daemon:", err)
+        log.Println("Error running daemon:", err)
     }
 }

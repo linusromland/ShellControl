@@ -2,22 +2,23 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 
-	"github.com/linusromland/ShellControl/ipc"
+	"github.com/linusromland/ShellControl/cli/ipc" // Adjust import path
 )
 
 func main() {
-    cliIPC, err := ipc.NewIPC()
-    if err != nil {
-        fmt.Println("Error initializing IPC:", err)
+    if len(os.Args) < 2 {
+        fmt.Println("Usage: cli <command>")
         return
     }
+    command := os.Args[1]
 
-    // Example message to the daemon
-    err = cliIPC.Send("start process")
+    err := ipc.SendCommand(command)
     if err != nil {
-        fmt.Println("Error sending message:", err)
+        log.Println("Error sending command:", err)
     } else {
-        fmt.Println("Message sent to daemon")
+        log.Println("Command sent:", command)
     }
 }
